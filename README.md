@@ -6,7 +6,17 @@ MedFusion-X is a research-oriented framework that investigates whether **adaptiv
 
 > **Research status:** Experimental / PhD-level research prototype. This project is not a clinical diagnostic system.
 
----
+## 🚀 Live Research Demo
+
+A ZeroGPU-compatible Gradio application is included at the repository root:
+
+- **Live Space:** https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live
+- **Space app:** `app.py`
+- **Space dependencies:** `requirements.txt`
+
+The live application accepts a chest X-ray and structured text prompt and, **only when a trained `best.pt` checkpoint is configured**, reports the 14 ChestX-ray14 pathology probabilities together with uncertainty, modality disagreement, and adaptive image/text gates.
+
+The application intentionally produces **no fabricated predictions** when a trained checkpoint is unavailable.
 
 ## 🔬 Research Question
 
@@ -22,70 +32,41 @@ The project is designed around a controlled comparison:
 
 Each experiment writes to its own output directory so results can be compared without overwriting checkpoints.
 
----
-
 ## 🧠 Architecture
 
 ```text
-                    ┌─────────────────────┐
-                    │   Chest X-ray Image │
-                    └──────────┬──────────┘
-                               │
-                       ┌───────▼────────┐
-                       │   BiomedCLIP   │
-                       └───────┬────────┘
-                               │
-                         Image embedding
-                               │
-                               │
-                               ▼
-                       ┌────────────────┐
-                       │                │
-                       │ AdaptiveFusion │──────► Image gate
-                       │                │
-                       └───────┬────────┘
-                               │
-                               │ Fused representation
-                               │
-     ┌─────────────────────────┘
-     │
-     │     ┌────────────────────────────┐
-     └────►│       Uncertainty Head     │
-           │ + modality disagreement    │
-           └─────────────┬──────────────┘
-                         │
-                         ▼
-                 Uncertainty estimate
-
-   Structured text prompt
-            │
-            ▼
-      ┌─────────────┐
-      │  MedGemma   │
-      └──────┬──────┘
-             │
-       Text embedding
-             │
-             └──────────────► AdaptiveFusion
-                                   │
-                                   ▼
-                         Multilabel classifier
-                                   │
-                                   ▼
-                         14 pathology outputs
+                    Chest X-ray Image
+                           │
+                     ┌─────▼─────┐
+                     │ BiomedCLIP│
+                     └─────┬─────┘
+                           │
+                    Image embedding
+                           │
+                           ▼
+                    Adaptive Fusion ◄──── MedGemma
+                           │                  ▲
+                    Fused representation     │
+                           │             Text embedding
+                           ▼
+                 ┌────────────────────┐
+                 │ Uncertainty Head   │
+                 │ + Disagreement     │
+                 └─────────┬──────────┘
+                           │
+                           ▼
+                    14-label outputs
 ```
 
 ### Components
 
 - **BiomedCLIP** — medical vision representation.
-- **MedGemma 1.5 4B IT** — medical language representation.
+- **MedGemma** — medical language representation.
 - **AdaptiveFusion** — learnable modality-specific gating.
 - **Auxiliary heads** — image and text supervision.
 - **Disagreement module** — measures divergence between modality predictions.
 - **Uncertainty head** — predicts sample-level uncertainty.
 - **Selective prediction** — evaluates performance at different coverage levels.
-
----
 
 ## 🩻 Dataset
 
@@ -118,53 +99,32 @@ Chest X-ray findings: Atelectasis, Effusion
 
 This means the default experiment is a **controlled multimodal label-prompt study**, not a claim that ChestX-ray14 contains paired clinical reports.
 
-For a stronger research study, a future experiment can replace these prompts with an independently sourced dataset containing genuine image-report pairs.
-
----
-
 ## 📁 Repository Structure
 
 ```text
 MedFusion-X/
+├── app.py                    # ZeroGPU-compatible Gradio demo
+├── requirements.txt          # Live Space dependencies
 ├── configs/
-│   ├── default.yaml
-│   └── experiments/
 ├── docs/
-│   └── EXPERIMENTS.md
 ├── scripts/
-│   ├── train.py
-│   ├── evaluate.py
-│   ├── run_experiments.py
-│   └── ...
 ├── src/
 │   └── medfusion_x/
-│       ├── data.py
-│       ├── models.py
-│       ├── losses.py
-│       ├── metrics.py
-│       ├── trainer.py
-│       ├── ablation.py
-│       └── utils.py
 ├── tests/
-│   ├── test_fusion.py
-│   └── test_smoke.py
+├── demo/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── README.md
 ├── .github/
-│   └── workflows/
-│       └── ci.yml
 ├── pyproject.toml
 └── README.md
 ```
 
----
-
 ## ⚙️ Installation
-
-Clone the repository and install the development dependencies:
 
 ```bash
 git clone https://github.com/Dinakarnayak/MedFusion-X.git
 cd MedFusion-X
-
 pip install -e ".[dev]"
 ```
 
@@ -178,9 +138,7 @@ Set the token locally without committing it:
 export HF_TOKEN="your_token_here"
 ```
 
-**Never commit `HF_TOKEN` or any other credential to GitHub.**
-
----
+For Hugging Face Spaces, configure `HF_TOKEN` as a **Space Secret**, never as source code.
 
 ## 🗂️ Dataset Setup
 
@@ -196,31 +154,11 @@ data/nih_chest_xray14/
     └── ...
 ```
 
-Validate the installation before training:
+Validate the installation:
 
 ```bash
 python scripts/prepare_dataset.py
 ```
-
-The validator checks the metadata columns and confirms that the image directory is present. The downloaded dataset itself remains outside version control.
-
-## 🗂️ Dataset Layout
-
-Place the dataset locally as:
-
-```text
-data/
-└── nih_chest_xray14/
-    ├── Data_Entry_2017.csv
-    └── images/
-        ├── 00000001_000.png
-        ├── 00000001_001.png
-        └── ...
-```
-
-The full image corpus is intentionally **not committed to this repository** because ChestX-ray14 is a large medical dataset hosted by NIH outside GitHub. Obtain it from the official NIH repository, place it under `data/nih_chest_xray14/`, and run `python scripts/prepare_dataset.py` to validate the installation. The repository includes `data/README.md` with the expected layout. citeturn0search0turn0search9
-
----
 
 ## 🚀 Training
 
@@ -238,13 +176,13 @@ python scripts/run_experiments.py --only text_only
 python scripts/run_experiments.py --only adaptive_fusion
 ```
 
-### Run the complete experiment matrix
+### Complete experiment matrix
 
 ```bash
 python scripts/run_experiments.py
 ```
 
-Outputs are isolated:
+Outputs:
 
 ```text
 outputs/
@@ -253,11 +191,7 @@ outputs/
 └── adaptive_fusion/
 ```
 
----
-
 ## 📊 Evaluation
-
-After training:
 
 ```bash
 python scripts/evaluate.py --config configs/default.yaml
@@ -276,27 +210,16 @@ The evaluation pipeline reports:
 - Selective risk
 - Uncertainty-aware coverage analysis
 
-No performance numbers are hard-coded into this README. Results should be generated from actual experiments.
-
----
+No performance numbers are hard-coded. Results must come from actual experiments.
 
 ## 🧪 Testing
 
-MedFusion-X includes dependency-light smoke tests that do not download the large medical models:
-
 ```bash
 pytest -q tests/test_smoke.py
-```
-
-Compile the complete project:
-
-```bash
 python -m compileall -q src scripts tests
 ```
 
-The GitHub Actions workflow also runs compilation and unit tests automatically on repository pushes and pull requests.
-
----
+GitHub Actions runs compilation and unit tests automatically.
 
 ## 🔬 Reproducibility
 
@@ -313,47 +236,14 @@ The project includes:
 - Lightweight smoke tests
 - Explicit dataset and methodological limitations
 
----
-
 ## 📈 Planned Research Evaluation
 
-The next research layer is intended to evaluate:
-
-1. **Baseline comparison**
-   - Image-only vs text-only vs adaptive fusion.
-
-2. **Ablation studies**
-   - No adaptive gating.
-   - No auxiliary supervision.
-   - No disagreement term.
-   - No uncertainty calibration.
-   - Frozen vs partially trainable encoders.
-
-3. **Uncertainty analysis**
-   - Calibration curves.
-   - Reliability diagrams.
-   - Expected Calibration Error.
-   - Selective risk / coverage curves.
-   - High-disagreement case analysis.
-
-4. **Statistical evaluation**
-   - Bootstrap confidence intervals.
-   - Per-pathology comparisons.
-   - Repeated-seed experiments.
-   - Paired model comparisons.
-
-5. **Interpretability**
-   - Image attribution / Grad-CAM-style visualisation.
-   - Modality gate analysis.
-   - Disagreement case studies.
-
-6. **Robustness**
-   - Distribution-shift evaluation.
-   - Missing-modality experiments.
-   - Corrupted-image experiments.
-   - Text perturbation experiments.
-
----
+1. **Baseline comparison** — image-only vs text-only vs adaptive fusion.
+2. **Ablation studies** — gating, auxiliary supervision, disagreement, uncertainty calibration, and encoder freezing.
+3. **Uncertainty analysis** — calibration curves, reliability diagrams, ECE, selective risk, and high-disagreement cases.
+4. **Statistical evaluation** — bootstrap confidence intervals, repeated seeds, and paired comparisons.
+5. **Interpretability** — image attribution, modality gates, and disagreement case studies.
+6. **Robustness** — distribution shift, missing modalities, image corruption, and text perturbation.
 
 ## ⚠️ Limitations and Responsible Use
 
@@ -370,40 +260,17 @@ Important limitations include:
 - Performance on one dataset does not establish generalisation to clinical populations.
 - Independent validation is required before any clinical interpretation.
 
----
-
 ## 🛠️ Technology Stack
 
-**Language**
+**Language:** Python
 
-- Python
+**Deep Learning:** PyTorch, Transformers, OpenCLIP
 
-**Deep Learning**
+**Medical AI:** BiomedCLIP, MedGemma
 
-- PyTorch
-- Transformers
-- OpenCLIP
+**Data / Evaluation:** NumPy, pandas, scikit-learn, SciPy
 
-**Medical AI**
-
-- BiomedCLIP
-- MedGemma
-
-**Data / Evaluation**
-
-- NumPy
-- pandas
-- scikit-learn
-- SciPy
-
-**Engineering**
-
-- YAML configuration
-- pytest
-- GitHub Actions
-- Reproducible experiment outputs
-
----
+**Engineering:** YAML, pytest, GitHub Actions, reproducible experiment outputs, Gradio, Hugging Face Spaces
 
 ## 📚 Research Documentation
 
@@ -412,8 +279,7 @@ Important limitations include:
 - [Experiment configurations](configs/experiments/)
 - [Source code](src/medfusion_x/)
 - [Tests](tests/)
-
----
+- [Live Gradio demo](https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live)
 
 ## 👨‍🔬 Research Direction
 
@@ -423,11 +289,7 @@ MedFusion-X is being developed as a research platform for investigating:
 
 The long-term objective is to establish a rigorous experimental framework where multimodal performance is evaluated not only by classification accuracy, but also by **calibration, uncertainty quality, robustness, interpretability, and statistical significance**.
 
----
-
 ## 📄 Citation
-
-If this project is used in academic work, please cite the repository and the specific experiment configuration/checkpoint used.
 
 ```text
 MedFusion-X
@@ -435,8 +297,6 @@ Dinakar Nayak N
 Multimodal Medical AI Research Framework
 https://github.com/Dinakarnayak/MedFusion-X
 ```
-
----
 
 ## ⚖️ License
 
