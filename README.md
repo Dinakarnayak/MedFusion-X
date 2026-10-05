@@ -182,6 +182,28 @@ export HF_TOKEN="your_token_here"
 
 ---
 
+## 🗂️ Dataset Setup
+
+The full NIH ChestX-ray14 image corpus is not committed to GitHub. Download it from the official NIH Clinical Center distribution and place the files locally under `data/nih_chest_xray14/`.
+
+Expected structure:
+
+```text
+data/nih_chest_xray14/
+├── Data_Entry_2017.csv
+└── images/
+    ├── 00000001_000.png
+    └── ...
+```
+
+Validate the installation before training:
+
+```bash
+python scripts/prepare_dataset.py
+```
+
+The validator checks the metadata columns and confirms that the image directory is present. The downloaded dataset itself remains outside version control.
+
 ## 🗂️ Dataset Layout
 
 Place the dataset locally as:
