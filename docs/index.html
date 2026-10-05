@@ -1,34 +1,215 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MedFusion-X — Multimodal Medical AI</title>
-<meta name="description" content="MedFusion-X: a reproducible multimodal medical AI research framework combining BiomedCLIP, MedGemma and adaptive fusion.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07111f">
+<title>MedFusion-X | Evidence-Aware Multimodal Medical AI</title>
+<meta name="description" content="MedFusion-X is a reproducible research framework for evidence-aware multimodal medical AI using BiomedCLIP, MedGemma, adaptive fusion, disagreement estimation and uncertainty-aware prediction.">
 <style>
-:root{color-scheme:dark;--bg:#07111f;--panel:#0d1b2d;--line:#1e3652;--text:#edf6ff;--muted:#9bb0c7;--accent:#55d6be;--blue:#63a4ff}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 75% 10%,#12365a 0,#07111f 42%);color:var(--text);line-height:1.6}
-main{max-width:1120px;margin:auto;padding:28px 22px 70px}.nav{display:flex;justify-content:space-between;align-items:center;padding:8px 0 54px}.brand{font-weight:800;letter-spacing:.4px}.links a{color:var(--muted);margin-left:20px;text-decoration:none}.links a:hover{color:white}
-.hero{padding:55px 0 70px;max-width:900px}.eyebrow{color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:13px}.hero h1{font-size:clamp(46px,8vw,82px);line-height:.98;margin:15px 0 24px;letter-spacing:-4px}.hero p{font-size:20px;color:var(--muted);max-width:760px}.buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{padding:12px 18px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:white;background:#10243a}.btn.primary{background:var(--accent);color:#06131e;border-color:var(--accent);font-weight:800}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0 55px}.card{background:rgba(13,27,45,.82);border:1px solid var(--line);border-radius:16px;padding:22px}.card h3{margin:0 0 7px}.muted{color:var(--muted)}
-.section{margin:65px 0}.section h2{font-size:32px;margin-bottom:8px}.arch{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:center}.node{padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--panel);text-align:center}.arrow{text-align:center;color:var(--accent);font-size:24px}
-table{width:100%;border-collapse:collapse;background:rgba(13,27,45,.7);border-radius:14px;overflow:hidden}th,td{text-align:left;padding:14px;border-bottom:1px solid var(--line)}th{color:var(--accent)}
-footer{border-top:1px solid var(--line);padding-top:28px;color:var(--muted)}
-@media(max-width:760px){.grid,.arch{grid-template-columns:1fr}.hero h1{letter-spacing:-2px}.links{display:none}}
-</style></head>
-<body><main>
-<nav class="nav"><div class="brand">MedFusion-X</div><div class="links"><a href="#architecture">Architecture</a><a href="#experiments">Experiments</a><a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Live Demo</a><a href="https://github.com/Dinakarnayak/MedFusion-X">GitHub</a></div></nav>
-<section class="hero"><div class="eyebrow">Research framework · Multimodal medical AI</div>
-<h1>Evidence-aware fusion for medical imaging.</h1>
-<p>MedFusion-X studies how image and text representations can be combined with adaptive gating, disagreement estimation and uncertainty-aware prediction for reproducible medical AI research.</p>
-<div class="buttons"><a class="btn primary" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">🚀 Open Live Inference</a><a class="btn" href="https://github.com/Dinakarnayak/MedFusion-X">View source on GitHub</a><a class="btn" href="#experiments">Explore experiments</a></div></section>
-<section class="grid"><div class="card"><h3>BiomedCLIP</h3><p class="muted">Biomedical image representation for chest X-ray features.</p></div><div class="card"><h3>MedGemma</h3><p class="muted">Medical-language representation for controlled text-modality experiments.</p></div><div class="card"><h3>Adaptive fusion</h3><p class="muted">Learned per-dimension gates plus disagreement and uncertainty signals.</p></div></section>
-<section class="section"><div class="card"><h2>🚀 Live inference</h2><p class="muted">Run the trained MedFusion-X model through the Hugging Face ZeroGPU Space. The demo requires a real trained checkpoint and never fabricates predictions.</p><a class="btn primary" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Open MedFusion-X Live →</a></div></section>
-<section id="architecture" class="section"><h2>Architecture</h2><p class="muted">Two modality encoders feed a learned fusion and uncertainty layer.</p>
-<div class="arch"><div class="node"><strong>Chest X-ray</strong><br><span class="muted">BiomedCLIP encoder</span></div><div class="arrow">→</div><div class="node"><strong>Adaptive Fusion</strong><br><span class="muted">image/text gates</span></div><div class="node"><strong>Structured findings</strong><br><span class="muted">MedGemma encoder</span></div><div class="arrow">→</div><div class="node"><strong>Uncertainty</strong><br><span class="muted">confidence + disagreement</span></div></div></section>
-<section id="experiments" class="section"><h2>Research experiments</h2><p class="muted">The framework is designed for controlled ablation and reproducibility.</p>
-<table><thead><tr><th>Experiment</th><th>Modalities</th><th>Purpose</th></tr></thead><tbody>
-<tr><td>Image-only</td><td>Image</td><td>Visual baseline</td></tr><tr><td>Text-only</td><td>Text</td><td>Language baseline</td></tr><tr><td>Adaptive fusion</td><td>Image + text</td><td>Multimodal comparison</td></tr></tbody></table></section>
-<section class="section"><h2>Dataset</h2><p class="muted">MedFusion-X supports the NIH ChestX-ray14 research dataset. The full medical image corpus is intentionally not committed to GitHub. Follow the repository's dataset setup instructions to download and validate it locally.</p></section>
-<section class="section"><h2>Responsible research</h2><p class="muted">This project is for research and education, not clinical deployment. Model outputs require independent verification and should not be used as medical advice or diagnosis.</p></section>
-<footer>MedFusion-X · Reproducible medical AI research · <a href="https://github.com/Dinakarnayak/MedFusion-X" style="color:var(--accent)">GitHub repository</a> · <a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live" style="color:var(--accent)">Live demo</a></footer>
-</main></body></html>
+:root{
+ --bg:#050b14;--bg2:#091321;--panel:rgba(12,24,40,.82);--panel2:#0f1d30;
+ --line:#20344d;--line2:#294661;--text:#eef7ff;--muted:#9db0c4;
+ --cyan:#5eead4;--blue:#78a9ff;--violet:#a78bfa;--warn:#fbbf24;
+ --shadow:0 24px 70px rgba(0,0,0,.28);--max:1180px
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+ radial-gradient(900px 500px at 78% -5%,rgba(76,124,255,.18),transparent 65%),
+ radial-gradient(700px 500px at 5% 18%,rgba(45,212,191,.10),transparent 65%),
+ var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:42px 42px}
+a{color:inherit}
+main{max-width:var(--max);margin:auto;padding:0 24px 90px;position:relative}
+.nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)}
+.brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:.2px}
+.logo{width:30px;height:30px;border:1px solid #38618a;border-radius:9px;background:linear-gradient(135deg,var(--cyan),var(--blue));box-shadow:0 0 30px rgba(94,234,212,.16)}
+.links{display:flex;gap:24px}.links a{font-size:13px;color:var(--muted);text-decoration:none}.links a:hover{color:#fff}
+.hero{padding:82px 0 70px;display:grid;grid-template-columns:1.35fr .65fr;gap:52px;align-items:end}
+.eyebrow{display:inline-flex;gap:9px;align-items:center;color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan)}
+h1{font-size:clamp(48px,7.4vw,88px);line-height:.96;letter-spacing:-5px;margin:18px 0 27px;max-width:850px}
+.gradient{background:linear-gradient(105deg,#fff 15%,#a8c7ff 55%,#5eead4 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:19px;line-height:1.7;color:var(--muted);max-width:790px}
+.buttons{display:flex;gap:11px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border:1px solid var(--line2);border-radius:11px;text-decoration:none;background:#0d1a2b;color:#fff;font-weight:700;font-size:14px}
+.btn:hover{transform:translateY(-1px);border-color:#47729a}.primary{background:var(--cyan);border-color:var(--cyan);color:#041018}.primary:hover{color:#041018}
+.hero-panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(19,36,58,.9),rgba(9,18,31,.8));border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.panel-label{font-size:11px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:800}
+.status{display:flex;justify-content:space-between;align-items:center;margin:18px 0 20px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.dot{display:inline-block;width:8px;height:8px;background:var(--cyan);border-radius:50%;margin-right:8px;box-shadow:0 0 12px var(--cyan)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:11px;font-size:13px}.kv span:first-child{color:var(--muted)}.kv span:last-child{font-weight:700}
+.section{margin:88px 0}.section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:24px}.section h2{font-size:35px;letter-spacing:-1.5px;margin:0}.section-intro{max-width:720px;color:var(--muted);margin:7px 0 0}
+.kicker{font-size:11px;color:var(--blue);font-weight:850;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:linear-gradient(180deg,rgba(14,29,47,.88),rgba(9,19,32,.82));border:1px solid var(--line);border-radius:17px;padding:21px;box-shadow:0 10px 40px rgba(0,0,0,.12)}
+.card h3{margin:0 0 8px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:14px}
+.num{font-size:31px;font-weight:850;letter-spacing:-1px}.small{font-size:11px;color:var(--muted)}
+.arch{border:1px solid var(--line);border-radius:20px;padding:26px;background:rgba(8,17,29,.75)}
+.pipeline{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:12px;align-items:center}
+.node{min-height:140px;padding:20px;border:1px solid var(--line2);border-radius:15px;background:var(--panel);display:flex;flex-direction:column;justify-content:center}
+.node strong{font-size:16px}.node span{color:var(--muted);font-size:13px;margin-top:7px}.node .tag{color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.arrow{text-align:center;color:var(--cyan);font-size:24px}
+.subpipe{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+.mini{padding:16px;border:1px dashed #31506e;border-radius:13px;color:var(--muted);font-size:13px;text-align:center}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:17px}
+table{width:100%;border-collapse:collapse;min-width:720px;background:rgba(10,20,34,.78)}
+th,td{text-align:left;padding:15px 17px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--cyan);font-size:11px;text-transform:uppercase;letter-spacing:1px}tr:last-child td{border-bottom:0}
+.badge{display:inline-block;border:1px solid var(--line2);background:#0c192a;border-radius:999px;padding:4px 9px;color:#b8c9da;font-size:11px;font-weight:700}
+.notice{border:1px solid #5b4717;background:rgba(82,61,13,.18);border-radius:17px;padding:19px;color:#d9caa2}.notice strong{color:#ffe49a}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.code{font-family:"SFMono-Regular",Consolas,monospace;background:#040a12;border:1px solid var(--line);border-radius:14px;padding:18px;color:#b8d6ef;font-size:12px;overflow:auto}
+.footer{border-top:1px solid var(--line);padding-top:30px;color:var(--muted);display:flex;justify-content:space-between;gap:20px;font-size:12px}.footer a{color:var(--cyan);text-decoration:none}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.pipeline{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
+@media(max-width:650px){main{padding:0 16px 60px}.links{display:none}.hero{padding-top:55px}h1{letter-spacing:-3px}.grid,.grid4,.two,.subpipe{grid-template-columns:1fr}.section{margin:65px 0}.footer{display:block}.footer div+div{margin-top:12px}}
+</style>
+</head>
+<body>
+<main>
+<nav class="nav">
+ <div class="brand"><span class="logo"></span>MedFusion-X</div>
+ <div class="links">
+  <a href="#research">Research</a><a href="#architecture">Architecture</a><a href="#protocol">Protocol</a><a href="#reproducibility">Reproducibility</a>
+  <a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Live Demo</a>
+ </div>
+</nav>
+
+<section class="hero">
+ <div>
+  <div class="eyebrow">Research framework · Medical AI · Reproducible ML</div>
+  <h1><span class="gradient">Evidence-aware</span><br>multimodal fusion.</h1>
+  <p class="lead">MedFusion-X investigates whether adaptive integration of biomedical image and medical-language representations can improve multi-label chest X-ray prediction while exposing modality disagreement and predictive uncertainty.</p>
+  <div class="buttons">
+   <a class="btn primary" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">🚀 Run research demo</a>
+   <a class="btn" href="https://github.com/Dinakarnayak/MedFusion-X">⌘ Source code</a>
+   <a class="btn" href="#protocol">View protocol ↓</a>
+  </div>
+ </div>
+ <aside class="hero-panel">
+  <div class="panel-label">Research status</div>
+  <div class="status"><strong>Open research prototype</strong><span><i class="dot"></i>active</span></div>
+  <div class="kv">
+   <span>Task</span><span>14-label classification</span>
+   <span>Dataset</span><span>ChestX-ray14</span>
+   <span>Image encoder</span><span>BiomedCLIP</span>
+   <span>Text encoder</span><span>MedGemma</span>
+   <span>Fusion</span><span>Adaptive gating</span>
+   <span>Uncertainty</span><span>Disagreement-aware</span>
+  </div>
+ </aside>
+</section>
+
+<section id="research" class="section">
+ <div class="section-head"><div><div class="kicker">01 · Research framing</div><h2>From prediction to evidence.</h2><p class="section-intro">The project is structured around a testable research question rather than a single benchmark score.</p></div></div>
+ <div class="grid">
+  <div class="card"><div class="badge">RQ1 · Representation</div><h3>Does multimodal evidence help?</h3><p>Compare image-only, text-only and image+text configurations under a controlled evaluation protocol.</p></div>
+  <div class="card"><div class="badge">RQ2 · Fusion</div><h3>Can the model adapt?</h3><p>Learn modality-specific gates so the fusion layer can vary its reliance on visual and textual evidence.</p></div>
+  <div class="card"><div class="badge">RQ3 · Reliability</div><h3>When should evidence be questioned?</h3><p>Expose image/text disagreement and an uncertainty signal instead of presenting confidence as certainty.</p></div>
+ </div>
+</section>
+
+<section id="architecture" class="section">
+ <div class="section-head"><div><div class="kicker">02 · Model architecture</div><h2>A modular evidence pipeline.</h2><p class="section-intro">Encoders remain separable from fusion and prediction so each component can be ablated and audited.</p></div></div>
+ <div class="arch">
+  <div class="pipeline">
+   <div class="node"><span class="tag">Modality A</span><strong>Chest X-ray</strong><span>BiomedCLIP image representation → normalized embedding</span></div>
+   <div class="arrow">→</div>
+   <div class="node"><span class="tag">Fusion core</span><strong>Adaptive Fusion</strong><span>Per-dimension image/text gates with nonlinear projection</span></div>
+   <div class="arrow">→</div>
+   <div class="node"><span class="tag">Decision layer</span><strong>Multi-label head</strong><span>14 pathology logits + uncertainty estimation</span></div>
+  </div>
+  <div class="subpipe">
+   <div class="mini">Structured findings → MedGemma representation</div>
+   <div class="mini">Image/text heads → modality confidence</div>
+   <div class="mini">Probability disagreement → uncertainty signal</div>
+  </div>
+ </div>
+</section>
+
+<section class="section">
+ <div class="section-head"><div><div class="kicker">03 · Experimental matrix</div><h2>Controlled comparisons.</h2><p class="section-intro">The repository contains explicit modality switches and ablation infrastructure so improvements can be attributed to components rather than hidden configuration changes.</p></div></div>
+ <div class="table-wrap">
+  <table><thead><tr><th>Configuration</th><th>Image</th><th>Text</th><th>Fusion</th><th>Research purpose</th></tr></thead>
+  <tbody>
+   <tr><td><strong>Image-only</strong></td><td>✓</td><td>—</td><td>—</td><td>Visual baseline</td></tr>
+   <tr><td><strong>Text-only</strong></td><td>—</td><td>✓</td><td>—</td><td>Language baseline</td></tr>
+   <tr><td><strong>Adaptive fusion</strong></td><td>✓</td><td>✓</td><td>✓</td><td>Primary multimodal hypothesis</td></tr>
+   <tr><td><strong>Gate ablation</strong></td><td>✓</td><td>✓</td><td>Controlled</td><td>Test contribution of adaptive weighting</td></tr>
+   <tr><td><strong>Uncertainty analysis</strong></td><td>✓</td><td>✓</td><td>✓</td><td>Study confidence, disagreement and selective prediction</td></tr>
+  </tbody></table>
+ </div>
+</section>
+
+<section id="protocol" class="section">
+ <div class="section-head"><div><div class="kicker">04 · Reproducible protocol</div><h2>Designed to be rerun.</h2><p class="section-intro">The scientific value of the framework depends on being able to reproduce the data split, preprocessing, training configuration and evaluation procedure.</p></div></div>
+ <div class="grid4">
+  <div class="card"><div class="num">01</div><h3>Data</h3><p>Download the authorised NIH ChestX-ray14 corpus and validate paths, labels and image availability.</p></div>
+  <div class="card"><div class="num">02</div><h3>Split</h3><p>Use explicit validation/test fractions and a fixed random seed for controlled comparisons.</p></div>
+  <div class="card"><div class="num">03</div><h3>Train</h3><p>Run the selected modality configuration with recorded hyperparameters and checkpoint the best validation model.</p></div>
+  <div class="card"><div class="num">04</div><h3>Evaluate</h3><p>Report multilabel metrics, calibration/reliability analysis and uncertainty-aware selective behaviour.</p></div>
+ </div>
+</section>
+
+<section id="reproducibility" class="section">
+ <div class="section-head"><div><div class="kicker">05 · Research engineering</div><h2>Reproducibility is a feature.</h2><p class="section-intro">Every experimental claim should be traceable to code, configuration, data provenance and an evaluation procedure.</p></div></div>
+ <div class="two">
+  <div class="card"><h3>Configuration as evidence</h3><p>YAML configuration captures dataset paths, model identifiers, embedding dimensions, freezing strategy, fusion parameters, optimisation settings and evaluation thresholds.</p><div class="code">configs/default.yaml
+scripts/train.py
+scripts/evaluate.py
+scripts/run_experiments.py</div></div>
+  <div class="card"><h3>Quality gates</h3><p>Automated CI runs compilation and unit/smoke tests. The model code also includes modality-ablation paths, checkpointing and experiment history outputs.</p><div class="code">pytest -q
+python -m compileall src scripts
+outputs/best.pt
+outputs/history.json</div></div>
+ </div>
+</section>
+
+<section class="section">
+ <div class="section-head"><div><div class="kicker">06 · Evaluation philosophy</div><h2>Accuracy is not the whole story.</h2><p class="section-intro">Medical ML evaluation should distinguish discrimination, calibration, robustness and uncertainty instead of relying on a single headline metric.</p></div></div>
+ <div class="grid">
+  <div class="card"><h3>Discrimination</h3><p>Macro-averaged multilabel metrics such as AUPRC are useful when pathology prevalence varies substantially across labels.</p></div>
+  <div class="card"><h3>Selective prediction</h3><p>Estimate risk under confidence-based abstention so the model can be evaluated when low-confidence cases are excluded.</p></div>
+  <div class="card"><h3>Uncertainty & disagreement</h3><p>Inspect modality disagreement and uncertainty alongside predictions rather than treating probability as clinical certainty.</p></div>
+ </div>
+</section>
+
+<section class="section">
+ <div class="notice"><strong>Research integrity notice.</strong> MedFusion-X is an experimental research and education framework. The public site intentionally does not publish fabricated accuracy, AUC, sensitivity, specificity or clinical claims. Results should only be added after the corresponding experiment has actually been run and the evaluation artefacts are available for inspection.</div>
+</section>
+
+<section class="section">
+ <div class="section-head"><div><div class="kicker">07 · Live research interface</div><h2>Run the model, inspect the evidence.</h2><p class="section-intro">The Hugging Face ZeroGPU interface is designed as a research demonstrator. A genuine trained checkpoint is required; the application does not fabricate predictions.</p></div>
+ <a class="btn primary" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Open Live Demo →</a></div>
+ <div class="grid">
+  <div class="card"><h3>Input</h3><p>Chest X-ray image plus controlled structured text prompt.</p></div>
+  <div class="card"><h3>Model outputs</h3><p>14 pathology probabilities, modality gates and uncertainty/disagreement signals.</p></div>
+  <div class="card"><h3>Safety boundary</h3><p>Research-only output. Independent verification is mandatory; this is not a diagnostic device.</p></div>
+ </div>
+</section>
+
+<section class="section">
+ <div class="section-head"><div><div class="kicker">08 · Limitations & next experiments</div><h2>Where the science should go next.</h2></div></div>
+ <div class="two">
+  <div class="card"><h3>Current limitations</h3><p>ChestX-ray14 provides image-level pathology labels rather than paired free-text radiology reports. The present text modality therefore represents a controlled structured-text experiment, not full image-report learning. External validation, subgroup analysis and prospective clinical evaluation are also outside the current scope.</p></div>
+  <div class="card"><h3>Next research directions</h3><p>Evaluate genuine radiology-report corpora where licensing permits; add calibration and confidence-interval reporting; test distribution shift; compare alternative fusion operators; perform repeated-seed experiments; and investigate label-specific failure modes and clinically meaningful subgroup robustness.</p></div>
+ </div>
+</section>
+
+<section class="section">
+ <div class="section-head"><div><div class="kicker">09 · Open research stack</div><h2>Everything needed to inspect the work.</h2></div></div>
+ <div class="grid4">
+  <div class="card"><h3>Code</h3><p><a href="https://github.com/Dinakarnayak/MedFusion-X" style="color:var(--cyan)">GitHub repository →</a></p></div>
+  <div class="card"><h3>Demo</h3><p><a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live" style="color:var(--cyan)">Hugging Face Space →</a></p></div>
+  <div class="card"><h3>Data protocol</h3><p><a href="https://github.com/Dinakarnayak/MedFusion-X/tree/main/data" style="color:var(--cyan)">Dataset instructions →</a></p></div>
+  <div class="card"><h3>Experiments</h3><p><a href="https://github.com/Dinakarnayak/MedFusion-X/tree/main/docs" style="color:var(--cyan)">Research documentation →</a></p></div>
+ </div>
+</section>
+
+<footer class="footer">
+ <div>MedFusion-X · Evidence-aware multimodal medical AI research</div>
+ <div><a href="https://github.com/Dinakarnayak/MedFusion-X">GitHub</a> · <a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Live Space</a> · Research/education only</div>
+</footer>
+</main>
+</body>
+</html>
