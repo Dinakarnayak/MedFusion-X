@@ -8,3 +8,4 @@ open_clip_torch>=2.26
 pillow>=10
 pyyaml>=6
 safetensors>=0.4
+git+https://github.com/Dinakarnayak/MedFusion-X.git
