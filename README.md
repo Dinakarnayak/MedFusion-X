@@ -196,7 +196,7 @@ data/
         └── ...
 ```
 
-The dataset itself is **not included in this repository**.
+The full image corpus is intentionally **not committed to this repository** because ChestX-ray14 is a large medical dataset hosted by NIH outside GitHub. Obtain it from the official NIH repository, place it under `data/nih_chest_xray14/`, and run `python scripts/prepare_dataset.py` to validate the installation. The repository includes `data/README.md` with the expected layout. citeturn0search0turn0search9
 
 ---
 
