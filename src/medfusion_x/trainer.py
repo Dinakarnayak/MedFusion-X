@@ -9,17 +9,19 @@ from .utils import save_json, ensure_dir
 class Trainer:
     def __init__(self,model,optimizer,device,cfg):
         self.model=model; self.optimizer=optimizer; self.device=device; self.cfg=cfg
-        self.scaler=GradScaler("cuda",enabled=cfg["amp"] and device.type=="cuda"); self.best=-float("inf")
+        self.amp_enabled=bool(cfg["amp"] and device.type=="cuda")
+        self.scaler=GradScaler("cuda",enabled=self.amp_enabled); self.best=-float("inf")
 
     def _epoch(self,loader,train=True):
         self.model.train(train); total=0; ys=[]; ps=[]; us=[]
         for b in tqdm(loader,leave=False):
             images=b["image"].to(self.device); targets=b["target"].to(self.device)
             if train: self.optimizer.zero_grad(set_to_none=True)
-            with autocast(device_type=self.device.type,enabled=self.scaler.is_enabled()):
+            with autocast(device_type=self.device.type,enabled=self.amp_enabled):
                 o=self.model(images,b["text"]); loss=total_loss(o,targets)
             if train:
                 self.scaler.scale(loss).backward()
+                if self.amp_enabled: self.scaler.unscale_(self.optimizer)
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(),self.cfg["grad_clip"])
                 self.scaler.step(self.optimizer); self.scaler.update()
             total+=loss.item()*images.size(0); ys.append(targets.cpu()); ps.append(torch.sigmoid(o["logits"]).detach().cpu()); us.append(o["uncertainty"].detach().cpu())
