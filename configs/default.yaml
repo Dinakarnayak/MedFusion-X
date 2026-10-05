@@ -1,0 +1,42 @@
+seed: 42
+data:
+  root: ./data/nih_chest_xray14
+  csv: ./data/nih_chest_xray14/Data_Entry_2017.csv
+  image_dir: ./data/nih_chest_xray14/images
+  text_column: null
+  label_column: Finding Labels
+  image_column: Image Index
+  max_samples: null
+  num_workers: 4
+  image_size: 224
+  val_fraction: 0.1
+  test_fraction: 0.1
+models:
+  image_model: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+  text_model: google/medgemma-4b-it
+  embedding_dim: 512
+  freeze_image_encoder: true
+  freeze_text_encoder: true
+  max_text_length: 128
+  hf_token_env: HF_TOKEN
+fusion:
+  hidden_dim: 512
+  dropout: 0.2
+  temperature: 1.0
+  uncertainty_hidden: 128
+training:
+  batch_size: 8
+  epochs: 10
+  lr: 0.0001
+  weight_decay: 0.0001
+  grad_clip: 1.0
+  amp: true
+  patience: 3
+evaluation:
+  threshold: 0.5
+  output_dir: ./outputs
+  bootstrap_samples: 1000
+experiments:
+  run_name: baseline_adaptive_fusion
+  modalities: [image, text]
+  text_mode: label_prompt
