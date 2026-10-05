@@ -1,9 +1,13 @@
+import json
 import os
+import time
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
+import gradio as gr
 import spaces
 import torch
-import gradio as gr
 from huggingface_hub import hf_hub_download
 from PIL import Image
 from torchvision import transforms
@@ -25,31 +29,108 @@ TRANSFORM = transforms.Compose([
 
 MODEL = None
 MODEL_DEVICE = None
+MODEL_CHECKPOINT = None
+
 
 def resolve_checkpoint():
     if CHECKPOINT:
         path = Path(CHECKPOINT)
         if path.exists():
             return str(path)
-        return hf_hub_download(repo_id=CHECKPOINT, filename=CHECKPOINT_FILENAME, token=os.getenv("HF_TOKEN"))
-    return hf_hub_download(repo_id=CHECKPOINT_REPO, filename=CHECKPOINT_FILENAME, token=os.getenv("HF_TOKEN"))
+        return hf_hub_download(
+            repo_id=CHECKPOINT,
+            filename=CHECKPOINT_FILENAME,
+            token=os.getenv("HF_TOKEN"),
+        )
+    return hf_hub_download(
+        repo_id=CHECKPOINT_REPO,
+        filename=CHECKPOINT_FILENAME,
+        token=os.getenv("HF_TOKEN"),
+    )
+
 
 def load_model(device):
+    global MODEL_CHECKPOINT
     checkpoint = resolve_checkpoint()
     image_encoder = BiomedCLIPEncoder(IMAGE_MODEL, device, freeze=True, output_dim=512).to(device)
     text_encoder = MedGemmaEncoder(TEXT_MODEL, device, freeze=True, output_dim=512).to(device)
-    model = MedFusionX(image_encoder, text_encoder, num_labels=len(CHEST14_LABELS), fusion_dim=512).to(device)
+    model = MedFusionX(
+        image_encoder,
+        text_encoder,
+        num_labels=len(CHEST14_LABELS),
+        fusion_dim=512,
+    ).to(device)
     state = torch.load(checkpoint, map_location=device)
     state_dict = state.get("model_state_dict", state.get("model", state))
     model.load_state_dict(state_dict, strict=True)
     model.eval()
+    MODEL_CHECKPOINT = checkpoint
     return model
 
+
+def metric_card(label, value, description):
+    return (
+        f'<div class="metric"><div class="metric-label">{label}</div>'
+        f'<div class="metric-value">{value}</div>'
+        f'<div class="metric-desc">{description}</div></div>'
+    )
+
+
+def score_band(score):
+    if score >= 0.70:
+        return "High"
+    if score >= 0.30:
+        return "Moderate"
+    return "Low"
+
+
+def build_report(run_id, timestamp, device, prompt, ranked, uncertainty, disagreement, image_gate, text_gate, latency_ms):
+    return {
+        "schema_version": "medfusion-x.research-report.v1",
+        "run_id": run_id,
+        "timestamp_utc": timestamp,
+        "task": "NIH ChestX-ray14-style 14-label multilabel classification",
+        "models": {
+            "vision": IMAGE_MODEL,
+            "language": TEXT_MODEL,
+            "fusion": "adaptive",
+        },
+        "input": {
+            "structured_text_prompt": prompt,
+            "image_supplied": True,
+        },
+        "outputs": {
+            "ranked_findings": [
+                {"rank": i, "label": label, "score": round(float(score), 8), "band": score_band(score)}
+                for i, (label, score) in enumerate(ranked, start=1)
+            ],
+            "uncertainty": uncertainty,
+            "modality_disagreement": disagreement,
+            "mean_image_gate": image_gate,
+            "mean_text_gate": text_gate,
+        },
+        "runtime": {
+            "device": device,
+            "latency_ms": round(latency_ms, 2),
+            "checkpoint": MODEL_CHECKPOINT,
+        },
+        "research_notice": (
+            "Model outputs are for research/education only. They are not clinical "
+            "diagnoses or calibrated patient-level disease probabilities."
+        ),
+    }
+
+
 @spaces.GPU(duration=180)
-def predict(image: Image.Image, text: str):
+def predict(image: Image.Image, text: str, history):
     global MODEL, MODEL_DEVICE
+
     if image is None:
         raise gr.Error("Upload a chest X-ray image first.")
+
+    started = time.perf_counter()
+    run_id = f"MF-{uuid.uuid4().hex[:10].upper()}"
+    timestamp = datetime.now(timezone.utc).isoformat()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -71,19 +152,56 @@ def predict(image: Image.Image, text: str):
     with torch.inference_mode():
         out = MODEL(x, [prompt])
 
+    if device == "cuda":
+        torch.cuda.synchronize()
+
+    latency_ms = (time.perf_counter() - started) * 1000.0
     probs = torch.sigmoid(out["logits"])[0].detach().cpu()
+
     uncertainty = float(out["uncertainty"][0].item())
     disagreement = float(out["disagreement"][0].item())
     image_gate = float(out["image_gate"][0].mean().item())
     text_gate = float(out["text_gate"][0].mean().item())
 
-    ranked = sorted(zip(CHEST14_LABELS, probs.tolist()), key=lambda z: z[1], reverse=True)
+    ranked = sorted(
+        zip(CHEST14_LABELS, probs.tolist()),
+        key=lambda z: z[1],
+        reverse=True,
+    )
     top_label, top_score = ranked[0]
 
     table = [
-        [rank, label, f"{score:.2%}", "High" if score >= 0.70 else "Moderate" if score >= 0.30 else "Low"]
+        [rank, label, f"{score:.2%}", score_band(score)]
         for rank, (label, score) in enumerate(ranked, start=1)
     ]
+
+    report = build_report(
+        run_id,
+        timestamp,
+        device,
+        prompt,
+        ranked,
+        uncertainty,
+        disagreement,
+        image_gate,
+        text_gate,
+        latency_ms,
+    )
+
+    history = list(history or [])
+    history.insert(
+        0,
+        [
+            run_id,
+            timestamp.replace("T", " ")[:19] + " UTC",
+            top_label,
+            f"{top_score:.2%}",
+            f"{uncertainty:.4f}",
+            f"{disagreement:.4f}",
+            f"{latency_ms:.0f} ms",
+        ],
+    )
+    history = history[:20]
 
     summary = f"""
 ### Inference result
@@ -95,6 +213,8 @@ def predict(image: Image.Image, text: str):
 {metric_card("Modality disagreement", f"{disagreement:.4f}", "Image/text probability disagreement")}
 {metric_card("Image gate", f"{image_gate:.4f}", "Mean learned image contribution")}
 {metric_card("Text gate", f"{text_gate:.4f}", "Mean learned text contribution")}
+{metric_card("Latency", f"{latency_ms:.0f} ms", "End-to-end inference trace")}
+{metric_card("Run ID", run_id, "Unique research run identifier")}
 </div>
 
 **Input prompt:** {prompt}
@@ -103,7 +223,7 @@ def predict(image: Image.Image, text: str):
 """
 
     evidence = f"""
-### Evidence diagnostics
+### Evidence & runtime diagnostics
 
 | Signal | Value | Interpretation |
 |---|---:|---|
@@ -113,10 +233,11 @@ def predict(image: Image.Image, text: str):
 | Image/text disagreement | **{disagreement:.4f}** | Difference between modality predictions |
 | Mean image gate | **{image_gate:.4f}** | Relative visual contribution |
 | Mean text gate | **{text_gate:.4f}** | Relative textual contribution |
+| Runtime | **{device.upper()}** | Active inference device |
+| Latency | **{latency_ms:.0f} ms** | Measured request latency |
+| Checkpoint | **Loaded** | Genuine trained checkpoint required |
 
-**Model:** BiomedCLIP + MedGemma + adaptive fusion  
-**Task:** NIH ChestX-ray14-style 14-label multilabel classification  
-**Runtime:** {device.upper()}
+**Research trace:** `{run_id}` · {timestamp}
 """
 
     warning = """
@@ -127,47 +248,58 @@ for medical decisions. Independently verify all findings with qualified
 clinical expertise and validated clinical systems.
 </div>
 """
-    return summary, evidence, table, warning
 
-def metric_card(label, value, description):
-    return (
-        f'<div class="metric"><div class="metric-label">{label}</div>'
-        f'<div class="metric-value">{value}</div>'
-        f'<div class="metric-desc">{description}</div></div>'
-    )
+    return summary, evidence, table, warning, history, report, f"● READY · {run_id} · {latency_ms:.0f} ms"
+
+
+def clear_session():
+    return [], [], None, "● READY · New research session"
+
 
 css = """
 body { background: #07111f; }
-.gradio-container { max-width: 1250px !important; }
+.gradio-container { max-width: 1320px !important; }
 .hero { border: 1px solid #213852; border-radius: 18px; padding: 24px; background: linear-gradient(135deg,#0d1d31,#091321); }
-.metric-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-.metric { border:1px solid #263f59; border-radius:12px; padding:14px; background:#0a1727; }
-.metric-label { color:#8fa7bd; font-size:11px; text-transform:uppercase; letter-spacing:1px; }
-.metric-value { color:#5eead4; font-size:24px; font-weight:800; margin-top:4px; }
-.metric-desc { color:#8fa7bd; font-size:11px; margin-top:3px; }
+.metric-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; }
+.metric { border:1px solid #263f59; border-radius:12px; padding:14px; background:#0a1727; min-height:100px; }
+.metric-label { color:#8fa7bd; font-size:10px; text-transform:uppercase; letter-spacing:1px; }
+.metric-value { color:#5eead4; font-size:21px; font-weight:800; margin-top:4px; overflow-wrap:anywhere; }
+.metric-desc { color:#8fa7bd; font-size:10px; margin-top:3px; }
 .warning { border:1px solid #66531d; background:#211c0d; border-radius:12px; padding:14px; color:#e6d6a4; }
-@media(max-width:800px){.metric-grid{grid-template-columns:1fr 1fr;}}
+.livebar { border:1px solid #25445e; border-radius:10px; padding:10px 13px; background:#091725; color:#5eead4; font-family:monospace; }
+@media(max-width:1100px){.metric-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:700px){.metric-grid{grid-template-columns:1fr 1fr;}}
 """
 
 with gr.Blocks(title="MedFusion-X | Live Research Inference", css=css) as demo:
+    session_history = gr.State([])
+
     gr.HTML("""
     <div class="hero">
       <div style="color:#5eead4;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase">
-        MEDFUSION-X · LIVE RESEARCH INFERENCE
+        MEDFUSION-X · LIVE RESEARCH INFERENCE · REAL-TIME TELEMETRY
       </div>
       <h1 style="margin:8px 0 4px">Evidence-aware multimodal analysis</h1>
       <p style="color:#9db0c4;margin:0">
         BiomedCLIP image evidence + MedGemma text representation + adaptive fusion,
-        disagreement estimation and uncertainty diagnostics.
+        disagreement estimation, uncertainty diagnostics and reproducible inference traces.
       </p>
     </div>
     """)
 
+    status = gr.Markdown("● READY · Waiting for a research run", elem_classes=["livebar"])
+
     with gr.Row():
         with gr.Column(scale=5):
             image = gr.Image(type="pil", label="Chest X-ray")
-            text = gr.Textbox(label="Structured text prompt", value="Chest X-ray findings: No Finding", lines=3)
-            run = gr.Button("▶ Run MedFusion-X", variant="primary")
+            text = gr.Textbox(
+                label="Structured text prompt",
+                value="Chest X-ray findings: No Finding",
+                lines=3,
+            )
+            with gr.Row():
+                run = gr.Button("▶ Run MedFusion-X", variant="primary")
+                clear = gr.Button("↻ Clear session")
         with gr.Column(scale=7):
             summary = gr.Markdown(label="Inference summary")
             evidence = gr.Markdown(label="Evidence diagnostics")
@@ -178,15 +310,65 @@ with gr.Blocks(title="MedFusion-X | Live Research Inference", css=css) as demo:
         label="14-label ranked output",
         interactive=False,
     )
+
     warning = gr.HTML(
         '<div class="warning"><b>Research / education only.</b> Upload an image and run the model to view research outputs.</div>'
     )
+
+    with gr.Accordion("Real-time run history · current browser session", open=True):
+        history_table = gr.Dataframe(
+            headers=[
+                "Run ID",
+                "UTC time",
+                "Top finding",
+                "Top score",
+                "Uncertainty",
+                "Disagreement",
+                "Latency",
+            ],
+            datatype=["str"] * 7,
+            interactive=False,
+            value=[],
+        )
+
+    with gr.Row():
+        with gr.Column():
+            with gr.Accordion("Machine-readable research report", open=False):
+                report = gr.JSON(label="Latest inference report")
+        with gr.Column():
+            with gr.Accordion("Model/runtime health", open=False):
+                gr.Markdown(
+                    f"**Vision encoder:** `{IMAGE_MODEL}`\n\n"
+                    f"**Language encoder:** `{TEXT_MODEL}`\n\n"
+                    f"**Checkpoint repository:** `{CHECKPOINT_REPO}`\n\n"
+                    "**Checkpoint policy:** genuine trained weights required; no fabricated inference."
+                )
+
     gr.Markdown(
-        "### Interpretation note\n"
+        "### Interpretation note
+"
         "A high model score is not a clinical diagnosis. Review the full ranked "
-        "output together with uncertainty and modality disagreement."
+        "output together with uncertainty, modality disagreement, gates and the "
+        "run trace. Session history is browser-session scoped and is not a patient record."
     )
-    run.click(predict, inputs=[image, text], outputs=[summary, evidence, results, warning])
+
+    run.click(
+        predict,
+        inputs=[image, text, session_history],
+        outputs=[summary, evidence, results, warning, history_table, report, status],
+    ).then(
+        lambda history: history,
+        inputs=[history_table],
+        outputs=[session_history],
+    )
+
+    clear.click(
+        clear_session,
+        outputs=[summary, evidence, history_table, status],
+    ).then(
+        lambda: [],
+        outputs=[session_history],
+    )
 
 if __name__ == "__main__":
     demo.launch()
