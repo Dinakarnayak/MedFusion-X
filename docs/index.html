@@ -243,6 +243,20 @@ Evidence-Aware Multimodal Medical AI Research Framework
 https://github.com/Dinakarnayak/MedFusion-X</div>
  <button class="btn" id="copyCitation" style="margin-top:12px">Copy citation</button><span id="copyStatus" class="note" style="margin-left:10px" aria-live="polite"></span></div>
 </section>
+
+<section class="section" id="live-ops">
+ <div class="section-head"><div><div class="kicker">10 · Real-time research operations</div><h2>More than a prediction: an auditable live run.</h2><p class="intro">The live interface now adds operational telemetry and session-level research traces without changing the underlying multimodal model.</p></div></div>
+ <div class="grid4">
+  <article class="card"><span class="tag">Live telemetry</span><h3>Inference latency</h3><p>Each run records measured end-to-end inference latency and the active CPU/GPU runtime.</p></article>
+  <article class="card"><span class="tag">Traceability</span><h3>Unique run IDs</h3><p>Every inference receives a short research run identifier and UTC timestamp for reproducible discussion.</p></article>
+  <article class="card"><span class="tag">Session analytics</span><h3>Run history</h3><p>Keep the latest session runs side-by-side with top finding, score, uncertainty, disagreement and latency.</p></article>
+  <article class="card"><span class="tag">Interoperability</span><h3>JSON research report</h3><p>Inspect structured model outputs and runtime metadata in a machine-readable report format.</p></article>
+ </div>
+ <div class="two" style="margin-top:14px">
+  <article class="card"><span class="tag">Evidence-first</span><h3>Cross-modal diagnostics</h3><p>The interface preserves image/text gates and disagreement so users can inspect when modalities agree or conflict instead of relying on one headline score.</p></article>
+  <article class="card"><span class="tag">Safe failure</span><h3>Real checkpoint only</h3><p>The live app continues to refuse fabricated predictions when a genuine trained checkpoint is unavailable. The operational layer never creates synthetic medical results.</p></article>
+ </div>
+</section>
 </main>
 
 <footer class="wrap footer">
