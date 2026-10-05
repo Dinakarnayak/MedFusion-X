@@ -23,7 +23,7 @@ def validate(root: Path) -> bool:
         print(f"ERROR: missing CSV columns: {sorted(missing)}")
         return False
     print(f"Metadata rows: {len(df):,}")
-    print(f"Image files present: {len(list(image_dir.glob("*.png"))):,}")
+    print(f"Image files present: {len(list(image_dir.glob('*.png'))):,}")
     print("Dataset structure is valid for MedFusion-X.")
     return True
 
