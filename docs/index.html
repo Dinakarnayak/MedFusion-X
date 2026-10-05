@@ -56,7 +56,7 @@ details{border:1px solid var(--line);border-radius:12px;padding:14px 16px;backgr
  <div class="wrap" style="width:100%;display:flex;align-items:center;justify-content:space-between">
   <a class="brand" href="#top" aria-label="MedFusion-X home"><span class="mark"></span>MedFusion-X</a>
   <nav class="navlinks" aria-label="Primary navigation">
-   <a href="#research">Research</a><a href="#architecture">Architecture</a><a href="#experiments">Experiments</a><a href="#repro">Reproducibility</a>
+   <a href="#research">Research</a><a href="#architecture">Architecture</a><a href="#experiments">Experiments</a><a href="#analytics">Live analytics</a><a href="#repro">Reproducibility</a>
    <a class="nav-cta" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Live demo ↗</a>
   </nav>
  </div>
@@ -257,6 +257,67 @@ https://github.com/Dinakarnayak/MedFusion-X</div>
   <article class="card"><span class="tag">Safe failure</span><h3>Real checkpoint only</h3><p>The live app continues to refuse fabricated predictions when a genuine trained checkpoint is unavailable. The operational layer never creates synthetic medical results.</p></article>
  </div>
 </section>
+
+<section class="section" id="analytics">
+ <div class="section-head"><div><div class="kicker">11 · Live analytics</div><h2>A research cockpit for every run.</h2><p class="intro">The public portal now presents the live workflow as an observable experiment surface: inputs, model path, evidence signals, reliability checks and reproducibility metadata.</p></div></div>
+ <div class="two">
+  <article class="card">
+   <span class="tag">Inference pipeline</span>
+   <h3>Real-time evidence flow</h3>
+   <div class="timeline">
+    <div class="step"><i>01</i><div><h3>Acquire</h3><p>Chest X-ray + structured research prompt enter the same inference request.</p></div></div>
+    <div class="step"><i>02</i><div><h3>Encode</h3><p>BiomedCLIP and MedGemma produce modality-specific representations.</p></div></div>
+    <div class="step"><i>03</i><div><h3>Fuse</h3><p>Adaptive gates combine visual and textual evidence for the prediction head.</p></div></div>
+    <div class="step"><i>04</i><div><h3>Audit</h3><p>Uncertainty, disagreement, gates, latency and run identity are exposed.</p></div></div>
+   </div>
+  </article>
+  <article class="card">
+   <span class="tag">Research cockpit</span>
+   <h3>Signals to inspect</h3>
+   <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card"><div class="big">14</div><p>ranked pathology outputs</p></div>
+    <div class="card"><div class="big">02</div><p>modality contributions</p></div>
+    <div class="card"><div class="big">01</div><p>uncertainty signal</p></div>
+    <div class="card"><div class="big">01</div><p>cross-modal disagreement</p></div>
+   </div>
+   <p class="note" style="margin-top:14px">These values describe the interface surface, not benchmark performance. Actual results remain dependent on a trained checkpoint and valid experiment data.</p>
+  </article>
+ </div>
+</section>
+
+<section class="section" id="interpretability">
+ <div class="section-head"><div><div class="kicker">12 · Interpretability layer</div><h2>Make model behaviour easier to question.</h2><p class="intro">The upgraded interface keeps the existing outputs while making the evidence pathway more explicit for research inspection.</p></div></div>
+ <div class="grid">
+  <article class="card"><span class="tag">Modality attribution</span><h3>Image ↔ text contribution</h3><p>Inspect mean learned image and text gates alongside the final prediction instead of treating fusion as a black box.</p></article>
+  <article class="card"><span class="tag">Conflict analysis</span><h3>Disagreement-aware review</h3><p>Surface cross-modal disagreement as a dedicated signal for selecting cases for deeper analysis.</p></article>
+  <article class="card"><span class="tag">Reliability</span><h3>Uncertainty-aware inspection</h3><p>Keep uncertainty visible beside model scores so researchers can study confidence quality and selective prediction.</p></article>
+ </div>
+ <div class="notice" style="margin-top:14px"><strong>Interpretability boundary.</strong> Gate values and disagreement are model diagnostics, not causal explanations and not evidence that a specific anatomical region caused a prediction. Genuine attribution methods and human evaluation remain future research work.</div>
+</section>
+
+<section class="section" id="experiments-live">
+ <div class="section-head"><div><div class="kicker">13 · Experiment comparison</div><h2>Compare without inventing results.</h2><p class="intro">The dashboard separates experiment configuration from measured outcomes. Empty result cells are intentional until a real run produces the corresponding artifact.</p></div></div>
+ <div class="matrix"><table><thead><tr><th>Experiment</th><th>Representation</th><th>Fusion</th><th>Reliability</th><th>Robustness</th><th>Measured result</th></tr></thead><tbody>
+  <tr><td><b>Image-only</b></td><td>BiomedCLIP</td><td class="no">—</td><td>Planned</td><td>Planned</td><td class="no">Awaiting run</td></tr>
+  <tr><td><b>Text-only</b></td><td>MedGemma</td><td class="no">—</td><td>Planned</td><td>Planned</td><td class="no">Awaiting run</td></tr>
+  <tr><td><b>Adaptive fusion</b></td><td>BiomedCLIP + MedGemma</td><td class="yes">Learned gates</td><td>Uncertainty + disagreement</td><td>Planned</td><td class="no">Awaiting run</td></tr>
+ </tbody></table></div>
+ <div class="actions" style="margin-top:16px">
+  <a class="btn primary" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Open live research interface ↗</a>
+  <a class="btn" href="https://github.com/Dinakarnayak/MedFusion-X/tree/main/configs">Review experiment configs ↗</a>
+ </div>
+</section>
+
+<section class="section" id="reporting">
+ <div class="section-head"><div><div class="kicker">14 · Research reporting</div><h2>Designed for evidence, not screenshots.</h2><p class="intro">Each live inference can now expose a structured report suitable for downstream research tooling while keeping the public site free of unsupported clinical claims.</p></div></div>
+ <div class="grid4">
+  <article class="card"><span class="tag">Identity</span><h3>Run ID</h3><p>Short unique identifier for discussing a specific inference.</p></article>
+  <article class="card"><span class="tag">Time</span><h3>UTC trace</h3><p>Timestamp attached to the inference report for reproducibility.</p></article>
+  <article class="card"><span class="tag">Runtime</span><h3>Latency + device</h3><p>Measured request latency and active compute device are recorded.</p></article>
+  <article class="card"><span class="tag">Export</span><h3>Structured JSON</h3><p>Model outputs and runtime metadata are available as machine-readable research data.</p></article>
+ </div>
+</section>
+
 </main>
 
 <footer class="wrap footer">
