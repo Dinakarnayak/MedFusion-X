@@ -5,8 +5,8 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-import gradio as gr
 import spaces
+import gradio as gr
 import torch
 from huggingface_hub import hf_hub_download
 from PIL import Image
@@ -30,6 +30,7 @@ TRANSFORM = transforms.Compose([
 MODEL = None
 MODEL_DEVICE = None
 MODEL_CHECKPOINT = None
+MODEL_STARTUP_ERROR = None
 
 
 def resolve_checkpoint():
@@ -66,6 +67,21 @@ def load_model(device):
     model.eval()
     MODEL_CHECKPOINT = checkpoint
     return model
+
+
+def initialize_model():
+    """Load the trained model at module scope for ZeroGPU compatibility."""
+    global MODEL, MODEL_DEVICE, MODEL_CHECKPOINT, MODEL_STARTUP_ERROR
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    try:
+        MODEL = load_model(device)
+        MODEL_DEVICE = device
+        MODEL_STARTUP_ERROR = None
+    except Exception as exc:
+        MODEL = None
+        MODEL_DEVICE = None
+        MODEL_CHECKPOINT = None
+        MODEL_STARTUP_ERROR = str(exc)
 
 
 def metric_card(label, value, description):
@@ -369,6 +385,8 @@ with gr.Blocks(title="MedFusion-X | Live Research Inference", css=css) as demo:
         lambda: [],
         outputs=[session_history],
     )
+
+initialize_model()
 
 if __name__ == "__main__":
     demo.launch()
