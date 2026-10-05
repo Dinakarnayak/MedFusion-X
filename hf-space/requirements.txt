@@ -1,0 +1,12 @@
+# Hugging Face Spaces / ZeroGPU dependencies
+# Gradio, spaces and torch are provided/pinned by the Space runtime.
+git+https://github.com/Dinakarnayak/MedFusion-X.git
+transformers>=4.45
+accelerate>=0.34
+open_clip_torch>=2.26
+huggingface_hub>=0.34
+pillow>=10
+pyyaml>=6
+safetensors>=0.4
+pandas>=2.0
+numpy>=1.26
