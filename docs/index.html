@@ -3,213 +3,275 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07111f">
-<title>MedFusion-X | Evidence-Aware Multimodal Medical AI</title>
-<meta name="description" content="MedFusion-X is a reproducible research framework for evidence-aware multimodal medical AI using BiomedCLIP, MedGemma, adaptive fusion, disagreement estimation and uncertainty-aware prediction.">
+<meta name="theme-color" content="#070b12">
+<meta name="description" content="MedFusion-X — evidence-aware multimodal medical AI research framework for chest X-ray classification, adaptive fusion and uncertainty analysis.">
+<title>MedFusion-X — Research Laboratory</title>
 <style>
 :root{
- --bg:#050b14;--bg2:#091321;--panel:rgba(12,24,40,.82);--panel2:#0f1d30;
- --line:#20344d;--line2:#294661;--text:#eef7ff;--muted:#9db0c4;
- --cyan:#5eead4;--blue:#78a9ff;--violet:#a78bfa;--warn:#fbbf24;
- --shadow:0 24px 70px rgba(0,0,0,.28);--max:1180px
+ --bg:#070b12;--bg2:#0b111b;--panel:#0d1521;--panel2:#111c2b;--line:#1d2b3d;
+ --text:#f4f7fb;--muted:#91a2b7;--cyan:#65f6d7;--blue:#83aaff;--violet:#b49aff;
+ --amber:#f4c86b;--danger:#ff8f9d;--max:1240px;--radius:16px;
+ --shadow:0 18px 55px rgba(0,0,0,.28)
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
 body{margin:0;background:
- radial-gradient(900px 500px at 78% -5%,rgba(76,124,255,.18),transparent 65%),
- radial-gradient(700px 500px at 5% 18%,rgba(45,212,191,.10),transparent 65%),
- var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:42px 42px}
-a{color:inherit}
-main{max-width:var(--max);margin:auto;padding:0 24px 90px;position:relative}
-.nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)}
-.brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:.2px}
-.logo{width:30px;height:30px;border:1px solid #38618a;border-radius:9px;background:linear-gradient(135deg,var(--cyan),var(--blue));box-shadow:0 0 30px rgba(94,234,212,.16)}
-.links{display:flex;gap:24px}.links a{font-size:13px;color:var(--muted);text-decoration:none}.links a:hover{color:#fff}
-.hero{padding:82px 0 70px;display:grid;grid-template-columns:1.35fr .65fr;gap:52px;align-items:end}
-.eyebrow{display:inline-flex;gap:9px;align-items:center;color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
-.eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan)}
-h1{font-size:clamp(48px,7.4vw,88px);line-height:.96;letter-spacing:-5px;margin:18px 0 27px;max-width:850px}
-.gradient{background:linear-gradient(105deg,#fff 15%,#a8c7ff 55%,#5eead4 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.lead{font-size:19px;line-height:1.7;color:var(--muted);max-width:790px}
-.buttons{display:flex;gap:11px;flex-wrap:wrap;margin-top:30px}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border:1px solid var(--line2);border-radius:11px;text-decoration:none;background:#0d1a2b;color:#fff;font-weight:700;font-size:14px}
-.btn:hover{transform:translateY(-1px);border-color:#47729a}.primary{background:var(--cyan);border-color:var(--cyan);color:#041018}.primary:hover{color:#041018}
-.hero-panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(19,36,58,.9),rgba(9,18,31,.8));border-radius:20px;padding:22px;box-shadow:var(--shadow)}
-.panel-label{font-size:11px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:800}
-.status{display:flex;justify-content:space-between;align-items:center;margin:18px 0 20px;padding-bottom:18px;border-bottom:1px solid var(--line)}
-.dot{display:inline-block;width:8px;height:8px;background:var(--cyan);border-radius:50%;margin-right:8px;box-shadow:0 0 12px var(--cyan)}
-.kv{display:grid;grid-template-columns:1fr auto;gap:11px;font-size:13px}.kv span:first-child{color:var(--muted)}.kv span:last-child{font-weight:700}
-.section{margin:88px 0}.section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:24px}.section h2{font-size:35px;letter-spacing:-1.5px;margin:0}.section-intro{max-width:720px;color:var(--muted);margin:7px 0 0}
-.kicker{font-size:11px;color:var(--blue);font-weight:850;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:8px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.card{background:linear-gradient(180deg,rgba(14,29,47,.88),rgba(9,19,32,.82));border:1px solid var(--line);border-radius:17px;padding:21px;box-shadow:0 10px 40px rgba(0,0,0,.12)}
-.card h3{margin:0 0 8px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:14px}
-.num{font-size:31px;font-weight:850;letter-spacing:-1px}.small{font-size:11px;color:var(--muted)}
-.arch{border:1px solid var(--line);border-radius:20px;padding:26px;background:rgba(8,17,29,.75)}
-.pipeline{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:12px;align-items:center}
-.node{min-height:140px;padding:20px;border:1px solid var(--line2);border-radius:15px;background:var(--panel);display:flex;flex-direction:column;justify-content:center}
-.node strong{font-size:16px}.node span{color:var(--muted);font-size:13px;margin-top:7px}.node .tag{color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
-.arrow{text-align:center;color:var(--cyan);font-size:24px}
-.subpipe{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
-.mini{padding:16px;border:1px dashed #31506e;border-radius:13px;color:var(--muted);font-size:13px;text-align:center}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:17px}
-table{width:100%;border-collapse:collapse;min-width:720px;background:rgba(10,20,34,.78)}
-th,td{text-align:left;padding:15px 17px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--cyan);font-size:11px;text-transform:uppercase;letter-spacing:1px}tr:last-child td{border-bottom:0}
-.badge{display:inline-block;border:1px solid var(--line2);background:#0c192a;border-radius:999px;padding:4px 9px;color:#b8c9da;font-size:11px;font-weight:700}
-.notice{border:1px solid #5b4717;background:rgba(82,61,13,.18);border-radius:17px;padding:19px;color:#d9caa2}.notice strong{color:#ffe49a}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.code{font-family:"SFMono-Regular",Consolas,monospace;background:#040a12;border:1px solid var(--line);border-radius:14px;padding:18px;color:#b8d6ef;font-size:12px;overflow:auto}
-.footer{border-top:1px solid var(--line);padding-top:30px;color:var(--muted);display:flex;justify-content:space-between;gap:20px;font-size:12px}.footer a{color:var(--cyan);text-decoration:none}
-@media(max-width:900px){.hero{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.pipeline{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
-@media(max-width:650px){main{padding:0 16px 60px}.links{display:none}.hero{padding-top:55px}h1{letter-spacing:-3px}.grid,.grid4,.two,.subpipe{grid-template-columns:1fr}.section{margin:65px 0}.footer{display:block}.footer div+div{margin-top:12px}}
+ radial-gradient(900px 520px at 90% -10%,rgba(87,125,255,.17),transparent 62%),
+ radial-gradient(720px 500px at 0 20%,rgba(52,211,153,.08),transparent 65%),var(--bg);
+ color:var(--text);font:15px/1.7 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:44px 44px}
+a{color:inherit}.wrap{max-width:var(--max);margin:auto;padding:0 24px}
+.progress{position:fixed;z-index:20;top:0;left:0;width:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--blue));box-shadow:0 0 15px rgba(101,246,215,.5)}
+.nav{position:sticky;top:0;z-index:10;height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(7,11,18,.78);backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:.2px;text-decoration:none}.mark{width:31px;height:31px;border-radius:9px;border:1px solid #3a607f;background:linear-gradient(135deg,var(--cyan),var(--blue));box-shadow:0 0 28px rgba(101,246,215,.14)}
+.navlinks{display:flex;gap:20px;align-items:center}.navlinks a{font-size:12px;color:var(--muted);text-decoration:none}.navlinks a:hover{color:#fff}
+.nav-cta{padding:8px 12px;border:1px solid #31516f;border-radius:9px!important;color:#fff!important;background:#0c1725}
+.hero{padding:86px 0 68px;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.55fr);gap:52px;align-items:end}
+.eyebrow,.kicker{color:var(--cyan);font-size:11px;font-weight:850;letter-spacing:2px;text-transform:uppercase}
+.eyebrow{display:flex;align-items:center;gap:9px}.eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+h1{font-size:clamp(50px,7vw,94px);line-height:.94;letter-spacing:-5px;margin:18px 0 26px;max-width:900px}.grad{background:linear-gradient(105deg,#fff 20%,#b9ccff 55%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:19px;color:var(--muted);max-width:790px;line-height:1.75}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #2b4058;border-radius:10px;padding:11px 15px;text-decoration:none;font-size:13px;font-weight:800;background:#0c1624}.btn:hover{border-color:#4a6b8b;transform:translateY(-1px)}.primary{background:var(--cyan);border-color:var(--cyan);color:#04100e}.primary:hover{color:#04100e}
+.hero-card,.card,.console,.arch{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,27,43,.9),rgba(9,17,28,.84));box-shadow:var(--shadow);border-radius:var(--radius)}
+.hero-card{padding:22px}.micro{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:800}.status{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line);margin-bottom:17px}.live{color:var(--cyan)}.live:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cyan);margin-right:7px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:10px;font-size:12px}.kv span:nth-child(odd){color:var(--muted)}
+.section{padding:82px 0}.section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:24px}.section h2{font-size:36px;line-height:1.05;letter-spacing:-1.8px;margin:8px 0 0}.intro{max-width:730px;color:var(--muted);margin:9px 0 0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{padding:21px}.card h3{margin:0 0 8px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:13px}.tag{display:inline-flex;border:1px solid #2a4058;border-radius:999px;padding:4px 9px;font-size:10px;color:#b8c9da;font-weight:800;margin-bottom:13px}.big{font-size:30px;font-weight:850;letter-spacing:-1px}.note{font-size:11px;color:var(--muted)}
+.arch{padding:26px}.flow{display:grid;grid-template-columns:1fr 44px 1fr 44px 1fr;gap:10px;align-items:center}.node{min-height:145px;border:1px solid #29435e;border-radius:13px;padding:20px;background:#09121e;display:flex;flex-direction:column;justify-content:center}.node small{color:var(--cyan);font-size:10px;font-weight:850;letter-spacing:1.4px;text-transform:uppercase}.node strong{font-size:17px;margin:7px 0}.node span{color:var(--muted);font-size:12px}.arrow{text-align:center;color:var(--cyan);font-size:24px}.branch{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:11px}.branch div{padding:14px;border:1px dashed #31516d;border-radius:12px;text-align:center;color:var(--muted);font-size:12px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}.tab{cursor:pointer;border:1px solid #29415b;background:#0b1522;color:var(--muted);border-radius:9px;padding:9px 12px;font:700 12px inherit}.tab[aria-selected="true"]{background:#122438;color:#fff;border-color:#4d769d}.tabpanel{display:none}.tabpanel.active{display:block}
+.matrix{overflow:auto;border:1px solid var(--line);border-radius:15px}.matrix table{width:100%;min-width:760px;border-collapse:collapse}.matrix th,.matrix td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);font-size:12px}.matrix th{font-size:10px;color:var(--cyan);text-transform:uppercase;letter-spacing:1px}.matrix tr:last-child td{border-bottom:0}.yes{color:var(--cyan);font-weight:800}.no{color:#596b7f}
+.console{padding:20px}.console-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:15px}.console-head strong{font-size:15px}.console-head span{font-size:10px;color:var(--muted);border:1px solid #29415b;padding:4px 8px;border-radius:999px}.console-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.code{font:12px/1.7 "SFMono-Regular",Consolas,monospace;background:#050a11;border:1px solid #1b2b3d;border-radius:12px;padding:17px;overflow:auto;color:#b8d4ed}.output{border:1px solid #29415b;border-radius:12px;background:#0a1420;padding:17px}.output-row{display:flex;justify-content:space-between;gap:15px;padding:9px 0;border-bottom:1px solid #1b2a3a;font-size:12px}.output-row:last-child{border-bottom:0}.muted{color:var(--muted)}.accent{color:var(--cyan)}
+.timeline{position:relative;margin-top:10px}.timeline:before{content:"";position:absolute;left:13px;top:4px;bottom:4px;width:1px;background:#29415b}.step{display:grid;grid-template-columns:28px 1fr;gap:13px;position:relative;margin:0 0 22px}.step i{width:27px;height:27px;border-radius:50%;background:#0d1c2c;border:1px solid #3a5874;display:grid;place-items:center;font-style:normal;font-size:10px;color:var(--cyan)}.step h3{margin:0;font-size:14px}.step p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.notice{border:1px solid #5d4a1d;background:rgba(91,74,29,.12);border-radius:15px;padding:18px;color:#d9cda8}.notice strong{color:#ffe59a}
+details{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#0a131f}details+details{margin-top:9px}summary{cursor:pointer;font-weight:800;font-size:13px}details p{color:var(--muted);font-size:12px;margin:10px 0 0}
+.footer{border-top:1px solid var(--line);padding:28px 0 55px;display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:11px}.footer a{color:var(--cyan);text-decoration:none}
+@media(max-width:920px){.hero{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}.console-grid{grid-template-columns:1fr}}
+@media(max-width:680px){.wrap{padding:0 16px}.navlinks{display:none}.hero{padding-top:58px}h1{letter-spacing:-3px}.grid,.grid4,.two,.branch{grid-template-columns:1fr}.section{padding:62px 0}.section h2{font-size:30px}.footer{display:block}.footer div+div{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<main>
-<nav class="nav">
- <div class="brand"><span class="logo"></span>MedFusion-X</div>
- <div class="links">
-  <a href="#research">Research</a><a href="#architecture">Architecture</a><a href="#protocol">Protocol</a><a href="#reproducibility">Reproducibility</a>
-  <a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Live Demo</a>
+<div class="progress" id="progress"></div>
+<header class="nav">
+ <div class="wrap" style="width:100%;display:flex;align-items:center;justify-content:space-between">
+  <a class="brand" href="#top" aria-label="MedFusion-X home"><span class="mark"></span>MedFusion-X</a>
+  <nav class="navlinks" aria-label="Primary navigation">
+   <a href="#research">Research</a><a href="#architecture">Architecture</a><a href="#experiments">Experiments</a><a href="#repro">Reproducibility</a>
+   <a class="nav-cta" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Live demo ↗</a>
+  </nav>
  </div>
-</nav>
+</header>
 
+<main id="top" class="wrap">
 <section class="hero">
  <div>
-  <div class="eyebrow">Research framework · Medical AI · Reproducible ML</div>
-  <h1><span class="gradient">Evidence-aware</span><br>multimodal fusion.</h1>
-  <p class="lead">MedFusion-X investigates whether adaptive integration of biomedical image and medical-language representations can improve multi-label chest X-ray prediction while exposing modality disagreement and predictive uncertainty.</p>
-  <div class="buttons">
-   <a class="btn primary" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">🚀 Run research demo</a>
-   <a class="btn" href="https://github.com/Dinakarnayak/MedFusion-X">⌘ Source code</a>
-   <a class="btn" href="#protocol">View protocol ↓</a>
+  <div class="eyebrow">Open research laboratory · multimodal medical AI</div>
+  <h1><span class="grad">Evidence-aware</span><br>medical fusion.</h1>
+  <p class="lead">MedFusion-X studies whether adaptive integration of biomedical vision and medical-language representations can improve multi-label chest X-ray prediction while making disagreement, uncertainty and model behaviour inspectable.</p>
+  <div class="actions">
+   <a class="btn primary" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Run the live research demo ↗</a>
+   <a class="btn" href="https://github.com/Dinakarnayak/MedFusion-X">Inspect source ↗</a>
+   <a class="btn" href="#experiments">Explore experiments ↓</a>
   </div>
  </div>
- <aside class="hero-panel">
-  <div class="panel-label">Research status</div>
-  <div class="status"><strong>Open research prototype</strong><span><i class="dot"></i>active</span></div>
+ <aside class="hero-card" aria-label="Project status">
+  <div class="micro">Research registry</div>
+  <div class="status"><strong>Experimental prototype</strong><span class="live">active</span></div>
   <div class="kv">
-   <span>Task</span><span>14-label classification</span>
-   <span>Dataset</span><span>ChestX-ray14</span>
-   <span>Image encoder</span><span>BiomedCLIP</span>
-   <span>Text encoder</span><span>MedGemma</span>
-   <span>Fusion</span><span>Adaptive gating</span>
-   <span>Uncertainty</span><span>Disagreement-aware</span>
+   <span>Primary task</span><b>14-label CXR</b>
+   <span>Vision</span><b>BiomedCLIP</b>
+   <span>Language</span><b>MedGemma</b>
+   <span>Fusion</span><b>Adaptive gates</b>
+   <span>Reliability</span><b>Uncertainty + disagreement</b>
+   <span>Reproducibility</span><b>Config + CI + artifacts</b>
   </div>
  </aside>
 </section>
 
 <section id="research" class="section">
- <div class="section-head"><div><div class="kicker">01 · Research framing</div><h2>From prediction to evidence.</h2><p class="section-intro">The project is structured around a testable research question rather than a single benchmark score.</p></div></div>
+ <div class="section-head"><div><div class="kicker">01 · Research framing</div><h2>Three questions. One auditable pipeline.</h2><p class="intro">The website separates the research hypothesis from the eventual results. Numbers are only published when backed by a real experiment artifact.</p></div></div>
  <div class="grid">
-  <div class="card"><div class="badge">RQ1 · Representation</div><h3>Does multimodal evidence help?</h3><p>Compare image-only, text-only and image+text configurations under a controlled evaluation protocol.</p></div>
-  <div class="card"><div class="badge">RQ2 · Fusion</div><h3>Can the model adapt?</h3><p>Learn modality-specific gates so the fusion layer can vary its reliance on visual and textual evidence.</p></div>
-  <div class="card"><div class="badge">RQ3 · Reliability</div><h3>When should evidence be questioned?</h3><p>Expose image/text disagreement and an uncertainty signal instead of presenting confidence as certainty.</p></div>
+  <article class="card"><span class="tag">RQ1 · Representation</span><h3>Does multimodal evidence help?</h3><p>Compare strong image-only and text-only baselines against the adaptive fusion configuration under the same data and evaluation protocol.</p></article>
+  <article class="card"><span class="tag">RQ2 · Fusion</span><h3>Can evidence be weighted adaptively?</h3><p>Learn modality-specific gates instead of assuming that visual and textual representations should contribute equally to every case.</p></article>
+  <article class="card"><span class="tag">RQ3 · Reliability</span><h3>When should the model be questioned?</h3><p>Expose disagreement and uncertainty so low-confidence or conflicting cases can be studied rather than hidden behind a single score.</p></article>
  </div>
 </section>
 
 <section id="architecture" class="section">
- <div class="section-head"><div><div class="kicker">02 · Model architecture</div><h2>A modular evidence pipeline.</h2><p class="section-intro">Encoders remain separable from fusion and prediction so each component can be ablated and audited.</p></div></div>
+ <div class="section-head"><div><div class="kicker">02 · Architecture</div><h2>From evidence to prediction.</h2><p class="intro">The modular design keeps encoders, fusion, auxiliary supervision and uncertainty analysis separable for controlled ablation.</p></div></div>
  <div class="arch">
-  <div class="pipeline">
-   <div class="node"><span class="tag">Modality A</span><strong>Chest X-ray</strong><span>BiomedCLIP image representation → normalized embedding</span></div>
-   <div class="arrow">→</div>
-   <div class="node"><span class="tag">Fusion core</span><strong>Adaptive Fusion</strong><span>Per-dimension image/text gates with nonlinear projection</span></div>
-   <div class="arrow">→</div>
-   <div class="node"><span class="tag">Decision layer</span><strong>Multi-label head</strong><span>14 pathology logits + uncertainty estimation</span></div>
+  <div class="flow">
+   <div class="node"><small>Modality A</small><strong>Chest X-ray</strong><span>BiomedCLIP encodes the image into a normalized biomedical vision representation.</span></div>
+   <div class="arrow" aria-hidden="true">→</div>
+   <div class="node"><small>Fusion core</small><strong>Adaptive Fusion</strong><span>Learned image/text gates combine evidence dimension-by-dimension.</span></div>
+   <div class="arrow" aria-hidden="true">→</div>
+   <div class="node"><small>Decision layer</small><strong>Multi-label head</strong><span>Fourteen pathology logits are paired with reliability diagnostics.</span></div>
   </div>
-  <div class="subpipe">
-   <div class="mini">Structured findings → MedGemma representation</div>
-   <div class="mini">Image/text heads → modality confidence</div>
-   <div class="mini">Probability disagreement → uncertainty signal</div>
+  <div class="branch">
+   <div>Structured findings → MedGemma representation</div>
+   <div>Image/text heads → modality-specific scores</div>
+   <div>Probability divergence → disagreement / uncertainty signal</div>
   </div>
+ </div>
+</section>
+
+<section id="experiments" class="section">
+ <div class="section-head"><div><div class="kicker">03 · Experimental matrix</div><h2>Change one thing. Learn why.</h2><p class="intro">Use the tabs to inspect what each experiment is intended to establish. The matrix is a protocol, not a claim that every run has already been completed.</p></div></div>
+ <div class="tabs" role="tablist" aria-label="Experiment configurations">
+  <button class="tab" role="tab" aria-selected="true" data-tab="baseline">Baselines</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="fusion">Adaptive fusion</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="reliability">Reliability</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="robustness">Robustness</button>
+ </div>
+ <div id="baseline" class="tabpanel active" role="tabpanel">
+  <div class="matrix"><table><thead><tr><th>Configuration</th><th>Image</th><th>Text</th><th>Fusion</th><th>Purpose</th></tr></thead><tbody>
+   <tr><td><b>Image-only</b></td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td>Visual baseline</td></tr>
+   <tr><td><b>Text-only</b></td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td>Language baseline</td></tr>
+   <tr><td><b>Adaptive fusion</b></td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td>Primary hypothesis</td></tr>
+  </tbody></table></div>
+ </div>
+ <div id="fusion" class="tabpanel" role="tabpanel">
+  <div class="grid"><article class="card"><span class="tag">Gate ablation</span><h3>Fixed vs learned weighting</h3><p>Test whether adaptive gates contribute beyond simply concatenating or equally weighting modality embeddings.</p></article><article class="card"><span class="tag">Auxiliary supervision</span><h3>Remove modality heads</h3><p>Measure whether direct modality supervision stabilises or improves the fused representation.</p></article><article class="card"><span class="tag">Encoder control</span><h3>Frozen vs trainable</h3><p>Separate the effect of representation quality from the effect of downstream fusion capacity.</p></article></div>
+ </div>
+ <div id="reliability" class="tabpanel" role="tabpanel">
+  <div class="grid"><article class="card"><span class="tag">Calibration</span><h3>Confidence quality</h3><p>Evaluate reliability curves, expected calibration error and class-wise calibration where appropriate.</p></article><article class="card"><span class="tag">Selective prediction</span><h3>Coverage vs risk</h3><p>Study whether abstaining on uncertain cases reduces error at lower coverage.</p></article><article class="card"><span class="tag">Disagreement</span><h3>Cross-modal conflict</h3><p>Inspect cases where image and text evidence diverge and test whether disagreement predicts elevated error.</p></article></div>
+ </div>
+ <div id="robustness" class="tabpanel" role="tabpanel">
+  <div class="grid"><article class="card"><span class="tag">Missing modality</span><h3>Graceful degradation</h3><p>Measure behaviour when text or image evidence is unavailable rather than assuming both modalities always exist.</p></article><article class="card"><span class="tag">Shift</span><h3>Distribution robustness</h3><p>Evaluate performance under controlled changes in acquisition, preprocessing or cohort distribution where valid data are available.</p></article><article class="card"><span class="tag">Perturbation</span><h3>Evidence sensitivity</h3><p>Test whether small image corruption or structured-text changes create disproportionate prediction changes.</p></article></div>
  </div>
 </section>
 
 <section class="section">
- <div class="section-head"><div><div class="kicker">03 · Experimental matrix</div><h2>Controlled comparisons.</h2><p class="section-intro">The repository contains explicit modality switches and ablation infrastructure so improvements can be attributed to components rather than hidden configuration changes.</p></div></div>
- <div class="table-wrap">
-  <table><thead><tr><th>Configuration</th><th>Image</th><th>Text</th><th>Fusion</th><th>Research purpose</th></tr></thead>
-  <tbody>
-   <tr><td><strong>Image-only</strong></td><td>✓</td><td>—</td><td>—</td><td>Visual baseline</td></tr>
-   <tr><td><strong>Text-only</strong></td><td>—</td><td>✓</td><td>—</td><td>Language baseline</td></tr>
-   <tr><td><strong>Adaptive fusion</strong></td><td>✓</td><td>✓</td><td>✓</td><td>Primary multimodal hypothesis</td></tr>
-   <tr><td><strong>Gate ablation</strong></td><td>✓</td><td>✓</td><td>Controlled</td><td>Test contribution of adaptive weighting</td></tr>
-   <tr><td><strong>Uncertainty analysis</strong></td><td>✓</td><td>✓</td><td>✓</td><td>Study confidence, disagreement and selective prediction</td></tr>
-  </tbody></table>
+ <div class="section-head"><div><div class="kicker">04 · Research console</div><h2>What the live interface exposes.</h2><p class="intro">The demonstrator is deliberately diagnostic: it reports model evidence and limitations rather than pretending to be a clinical report generator.</p></div></div>
+ <div class="console">
+  <div class="console-head"><strong>MedFusion-X inference trace</strong><span>research-only interface</span></div>
+  <div class="console-grid">
+   <div class="code">INPUT
+image: chest_xray.png
+text: "Chest X-ray findings: Effusion"
+
+ENCODERS
+vision: BiomedCLIP
+language: MedGemma
+
+FUSION
+mode: adaptive
+gates: image ↔ text
+
+OUTPUT
+14 pathology probabilities
+uncertainty signal
+cross-modal disagreement
+evidence diagnostics</div>
+   <div class="output">
+    <div class="output-row"><span class="muted">Top finding</span><b>Computed at inference</b></div>
+    <div class="output-row"><span class="muted">Model score</span><span class="accent">Not hard-coded</span></div>
+    <div class="output-row"><span class="muted">Uncertainty</span><span class="accent">Reported when checkpoint runs</span></div>
+    <div class="output-row"><span class="muted">Image/text disagreement</span><span class="accent">Reported when available</span></div>
+    <div class="output-row"><span class="muted">Clinical interpretation</span><b>Not provided</b></div>
+   </div>
+  </div>
  </div>
 </section>
 
-<section id="protocol" class="section">
- <div class="section-head"><div><div class="kicker">04 · Reproducible protocol</div><h2>Designed to be rerun.</h2><p class="section-intro">The scientific value of the framework depends on being able to reproduce the data split, preprocessing, training configuration and evaluation procedure.</p></div></div>
+<section id="repro" class="section">
+ <div class="section-head"><div><div class="kicker">05 · Reproducibility</div><h2>A result should have a trail.</h2><p class="intro">The project treats configuration, data provenance, seeds, checkpoints and evaluation artefacts as part of the scientific result.</p></div></div>
  <div class="grid4">
-  <div class="card"><div class="num">01</div><h3>Data</h3><p>Download the authorised NIH ChestX-ray14 corpus and validate paths, labels and image availability.</p></div>
-  <div class="card"><div class="num">02</div><h3>Split</h3><p>Use explicit validation/test fractions and a fixed random seed for controlled comparisons.</p></div>
-  <div class="card"><div class="num">03</div><h3>Train</h3><p>Run the selected modality configuration with recorded hyperparameters and checkpoint the best validation model.</p></div>
-  <div class="card"><div class="num">04</div><h3>Evaluate</h3><p>Report multilabel metrics, calibration/reliability analysis and uncertainty-aware selective behaviour.</p></div>
+  <article class="card"><div class="big">01</div><h3>Data</h3><p>Validate authorised ChestX-ray14 files, labels and paths before training.</p></article>
+  <article class="card"><div class="big">02</div><h3>Config</h3><p>Record model IDs, dimensions, freezing, optimisation and evaluation settings in YAML.</p></article>
+  <article class="card"><div class="big">03</div><h3>Run</h3><p>Persist isolated outputs, best checkpoints, histories and split indices for each experiment.</p></article>
+  <article class="card"><div class="big">04</div><h3>Verify</h3><p>Use automated tests and compilation checks before treating a run as reproducible.</p></article>
  </div>
-</section>
-
-<section id="reproducibility" class="section">
- <div class="section-head"><div><div class="kicker">05 · Research engineering</div><h2>Reproducibility is a feature.</h2><p class="section-intro">Every experimental claim should be traceable to code, configuration, data provenance and an evaluation procedure.</p></div></div>
- <div class="two">
-  <div class="card"><h3>Configuration as evidence</h3><p>YAML configuration captures dataset paths, model identifiers, embedding dimensions, freezing strategy, fusion parameters, optimisation settings and evaluation thresholds.</p><div class="code">configs/default.yaml
+ <div class="two" style="margin-top:14px">
+  <article class="card"><h3>Suggested run trail</h3><div class="code">configs/default.yaml
+scripts/prepare_dataset.py
 scripts/train.py
 scripts/evaluate.py
-scripts/run_experiments.py</div></div>
-  <div class="card"><h3>Quality gates</h3><p>Automated CI runs compilation and unit/smoke tests. The model code also includes modality-ablation paths, checkpointing and experiment history outputs.</p><div class="code">pytest -q
-python -m compileall src scripts
-outputs/best.pt
-outputs/history.json</div></div>
+scripts/run_experiments.py
+outputs/&lt;experiment&gt;/best.pt
+outputs/&lt;experiment&gt;/history.json</div></article>
+  <article class="card"><h3>Evaluation surface</h3><p>Report multilabel discrimination alongside calibration and selective prediction. Add bootstrap confidence intervals and repeated-seed comparisons before making strong comparative claims.</p><p class="note" style="margin-top:12px">No headline metric is displayed here until an actual experiment produces it.</p></article>
  </div>
 </section>
 
 <section class="section">
- <div class="section-head"><div><div class="kicker">06 · Evaluation philosophy</div><h2>Accuracy is not the whole story.</h2><p class="section-intro">Medical ML evaluation should distinguish discrimination, calibration, robustness and uncertainty instead of relying on a single headline metric.</p></div></div>
- <div class="grid">
-  <div class="card"><h3>Discrimination</h3><p>Macro-averaged multilabel metrics such as AUPRC are useful when pathology prevalence varies substantially across labels.</p></div>
-  <div class="card"><h3>Selective prediction</h3><p>Estimate risk under confidence-based abstention so the model can be evaluated when low-confidence cases are excluded.</p></div>
-  <div class="card"><h3>Uncertainty & disagreement</h3><p>Inspect modality disagreement and uncertainty alongside predictions rather than treating probability as clinical certainty.</p></div>
+ <div class="section-head"><div><div class="kicker">06 · Research roadmap</div><h2>From prototype to defensible evidence.</h2></div></div>
+ <div class="timeline">
+  <div class="step"><i>01</i><div><h3>Benchmark</h3><p>Establish reproducible image-only and text-only baselines with fixed splits and seeds.</p></div></div>
+  <div class="step"><i>02</i><div><h3>Fusion</h3><p>Run the adaptive model and controlled gate/auxiliary-head ablations.</p></div></div>
+  <div class="step"><i>03</i><div><h3>Reliability</h3><p>Add calibration, uncertainty quality, selective risk and disagreement analysis.</p></div></div>
+  <div class="step"><i>04</i><div><h3>Statistics</h3><p>Repeat seeds, bootstrap confidence intervals and paired comparisons where scientifically justified.</p></div></div>
+  <div class="step"><i>05</i><div><h3>Robustness</h3><p>Investigate missing modalities, distribution shift, perturbations and subgroup failure modes.</p></div></div>
  </div>
 </section>
 
 <section class="section">
- <div class="notice"><strong>Research integrity notice.</strong> MedFusion-X is an experimental research and education framework. The public site intentionally does not publish fabricated accuracy, AUC, sensitivity, specificity or clinical claims. Results should only be added after the corresponding experiment has actually been run and the evaluation artefacts are available for inspection.</div>
+ <div class="notice"><strong>Research integrity boundary.</strong> MedFusion-X is an experimental research and education framework, not a clinical diagnostic system. The public site intentionally does not fabricate accuracy, AUROC, AUPRC, sensitivity, specificity or clinical claims. ChestX-ray14 contains image-level labels rather than paired free-text radiology reports; the default text pathway is therefore a controlled structured-label prompt experiment, not report-grounded multimodal learning.</div>
 </section>
 
 <section class="section">
- <div class="section-head"><div><div class="kicker">07 · Live research interface</div><h2>Run the model, inspect the evidence.</h2><p class="section-intro">The Hugging Face ZeroGPU interface is designed as a research demonstrator. A genuine trained checkpoint is required; the application does not fabricate predictions.</p></div>
- <a class="btn primary" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Open Live Demo →</a></div>
- <div class="grid">
-  <div class="card"><h3>Input</h3><p>Chest X-ray image plus controlled structured text prompt.</p></div>
-  <div class="card"><h3>Model outputs</h3><p>14 pathology probabilities, modality gates and uncertainty/disagreement signals.</p></div>
-  <div class="card"><h3>Safety boundary</h3><p>Research-only output. Independent verification is mandatory; this is not a diagnostic device.</p></div>
- </div>
-</section>
-
-<section class="section">
- <div class="section-head"><div><div class="kicker">08 · Limitations & next experiments</div><h2>Where the science should go next.</h2></div></div>
+ <div class="section-head"><div><div class="kicker">07 · Model card</div><h2>Know what the system can—and cannot—support.</h2></div></div>
  <div class="two">
-  <div class="card"><h3>Current limitations</h3><p>ChestX-ray14 provides image-level pathology labels rather than paired free-text radiology reports. The present text modality therefore represents a controlled structured-text experiment, not full image-report learning. External validation, subgroup analysis and prospective clinical evaluation are also outside the current scope.</p></div>
-  <div class="card"><h3>Next research directions</h3><p>Evaluate genuine radiology-report corpora where licensing permits; add calibration and confidence-interval reporting; test distribution shift; compare alternative fusion operators; perform repeated-seed experiments; and investigate label-specific failure modes and clinically meaningful subgroup robustness.</p></div>
+  <div>
+   <details open><summary>Intended use</summary><p>Research, coursework, model prototyping, multimodal fusion experiments, uncertainty analysis and reproducibility studies.</p></details>
+   <details><summary>Not intended for</summary><p>Diagnosis, triage, treatment selection, patient management, autonomous clinical decisions or regulatory claims.</p></details>
+   <details><summary>Dataset limitation</summary><p>ChestX-ray14 provides image-level pathology labels. Genuine report-conditioned experiments require a separately licensed and appropriately paired report dataset.</p></details>
+  </div>
+  <div>
+   <details open><summary>Known risks</summary><p>Dataset bias, label noise, shortcut learning, foundation-model errors, calibration failure and distribution shift can all affect outputs.</p></details>
+   <details><summary>Next evidence required</summary><p>Independent validation, repeated seeds, confidence intervals, calibration, subgroup analysis, robustness testing and clinically appropriate external review.</p></details>
+   <details><summary>Live checkpoint rule</summary><p>The demo requires a genuine trained checkpoint. If it is unavailable, the application should fail safely rather than invent a prediction.</p></details>
+  </div>
  </div>
 </section>
 
 <section class="section">
- <div class="section-head"><div><div class="kicker">09 · Open research stack</div><h2>Everything needed to inspect the work.</h2></div></div>
+ <div class="section-head"><div><div class="kicker">08 · Open research stack</div><h2>Inspect the implementation.</h2><p class="intro">The site is a front door to the code, experiment protocol and live research interface.</p></div></div>
  <div class="grid4">
-  <div class="card"><h3>Code</h3><p><a href="https://github.com/Dinakarnayak/MedFusion-X" style="color:var(--cyan)">GitHub repository →</a></p></div>
-  <div class="card"><h3>Demo</h3><p><a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live" style="color:var(--cyan)">Hugging Face Space →</a></p></div>
-  <div class="card"><h3>Data protocol</h3><p><a href="https://github.com/Dinakarnayak/MedFusion-X/tree/main/data" style="color:var(--cyan)">Dataset instructions →</a></p></div>
-  <div class="card"><h3>Experiments</h3><p><a href="https://github.com/Dinakarnayak/MedFusion-X/tree/main/docs" style="color:var(--cyan)">Research documentation →</a></p></div>
+  <article class="card"><h3>Source</h3><p><a class="accent" href="https://github.com/Dinakarnayak/MedFusion-X">GitHub repository ↗</a></p></article>
+  <article class="card"><h3>Live</h3><p><a class="accent" href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Hugging Face Space ↗</a></p></article>
+  <article class="card"><h3>Experiments</h3><p><a class="accent" href="https://github.com/Dinakarnayak/MedFusion-X/tree/main/configs">Experiment configs ↗</a></p></article>
+  <article class="card"><h3>Data protocol</h3><p><a class="accent" href="https://github.com/Dinakarnayak/MedFusion-X/tree/main/data">Dataset instructions ↗</a></p></article>
  </div>
 </section>
 
-<footer class="footer">
- <div>MedFusion-X · Evidence-aware multimodal medical AI research</div>
- <div><a href="https://github.com/Dinakarnayak/MedFusion-X">GitHub</a> · <a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Live Space</a> · Research/education only</div>
-</footer>
+<section class="section" style="padding-bottom:40px">
+ <div class="section-head"><div><div class="kicker">09 · Citation</div><h2>Reference the research framework.</h2></div></div>
+ <div class="console"><div class="code" id="citation">MedFusion-X
+Dinakar Nayak N
+Evidence-Aware Multimodal Medical AI Research Framework
+https://github.com/Dinakarnayak/MedFusion-X</div>
+ <button class="btn" id="copyCitation" style="margin-top:12px">Copy citation</button><span id="copyStatus" class="note" style="margin-left:10px" aria-live="polite"></span></div>
+</section>
 </main>
+
+<footer class="wrap footer">
+ <div>MedFusion-X · open research prototype · built for reproducible medical AI research</div>
+ <div><a href="https://github.com/Dinakarnayak/MedFusion-X">GitHub</a> · <a href="https://huggingface.co/spaces/dinakarnayak/MedFusion-X-Live">Live demo</a> · <a href="#top">Back to top ↑</a></div>
+</footer>
+
+<script>
+(function(){
+ const progress=document.getElementById("progress");
+ const updateProgress=()=>{const d=document.documentElement;const max=d.scrollHeight-d.clientHeight;progress.style.width=(max>0?(d.scrollTop/max)*100:0)+"%";};
+ addEventListener("scroll",updateProgress,{passive:true}); updateProgress();
+
+ document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected","false"));
+   document.querySelectorAll(".tabpanel").forEach(p=>p.classList.remove("active"));
+   btn.setAttribute("aria-selected","true");
+   document.getElementById(btn.dataset.tab).classList.add("active");
+  });
+ });
+
+ const copy=document.getElementById("copyCitation"), status=document.getElementById("copyStatus");
+ copy.addEventListener("click",async()=>{
+  const value=document.getElementById("citation").innerText;
+  try{await navigator.clipboard.writeText(value);status.textContent="Copied";setTimeout(()=>status.textContent="",1800);}
+  catch(e){status.textContent="Copy unavailable — select the citation manually.";}
+ });
+})();
+</script>
 </body>
 </html>
