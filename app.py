@@ -4,6 +4,8 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from io import BytesIO
+from urllib.request import urlopen
 
 import spaces
 import gradio as gr
@@ -20,6 +22,11 @@ TEXT_MODEL = os.getenv("MEDFUSION_TEXT_MODEL", "google/medgemma-4b-it")
 CHECKPOINT = os.getenv("MEDFUSION_CHECKPOINT", "")
 CHECKPOINT_REPO = os.getenv("MEDFUSION_CHECKPOINT_REPO", "dinakarnayak/MedFusion-X-Checkpoint")
 CHECKPOINT_FILENAME = os.getenv("MEDFUSION_CHECKPOINT_FILENAME", "best.pt")
+CHESTXRAY14_TEST_IMAGE = "00000003_005.png"
+CHESTXRAY14_TEST_IMAGE_URL = (
+    "https://nih-chest-x-rays.s3.us-east-2.amazonaws.com/"
+    f"images_1024x1024/{CHESTXRAY14_TEST_IMAGE}"
+)
 
 TRANSFORM = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -82,6 +89,16 @@ def initialize_model():
         MODEL_DEVICE = None
         MODEL_CHECKPOINT = None
         MODEL_STARTUP_ERROR = str(exc)
+
+
+def load_chestxray14_test_image():
+    """Load one public ChestX-ray14 image for reproducible pipeline smoke testing."""
+    try:
+        with urlopen(CHESTXRAY14_TEST_IMAGE_URL, timeout=30) as response:
+            image = Image.open(BytesIO(response.read())).convert("RGB")
+        return image
+    except Exception as exc:
+        raise gr.Error(f"Could not load ChestX-ray14 test image: {exc}") from exc
 
 
 def metric_card(label, value, description):
@@ -315,6 +332,7 @@ with gr.Blocks(title="MedFusion-X | Live Research Inference", css=css) as demo:
             )
             with gr.Row():
                 run = gr.Button("▶ Run MedFusion-X", variant="primary")
+                test_image = gr.Button("Load ChestX-ray14 test image")
                 clear = gr.Button("↻ Clear session")
         with gr.Column(scale=7):
             summary = gr.Markdown(label="Inference summary")
@@ -376,6 +394,11 @@ with gr.Blocks(title="MedFusion-X | Live Research Inference", css=css) as demo:
         lambda history: history,
         inputs=[history_table],
         outputs=[session_history],
+    )
+
+    test_image.click(
+        load_chestxray14_test_image,
+        outputs=[image],
     )
 
     clear.click(
