@@ -41,20 +41,37 @@ MODEL_STARTUP_ERROR = None
 
 
 def resolve_checkpoint():
-    if CHECKPOINT:
-        path = Path(CHECKPOINT)
-        if path.exists():
-            return str(path)
-        return hf_hub_download(
-            repo_id=CHECKPOINT,
-            filename=CHECKPOINT_FILENAME,
-            token=os.getenv("HF_TOKEN"),
+    token = os.getenv("HF_TOKEN")
+    if not token:
+        raise RuntimeError(
+            "HF_TOKEN is not configured in the Hugging Face Space secrets. "
+            "Add a read token with access to the private checkpoint repository "
+            f"'{CHECKPOINT_REPO}' and the gated model '{TEXT_MODEL}'."
         )
-    return hf_hub_download(
-        repo_id=CHECKPOINT_REPO,
-        filename=CHECKPOINT_FILENAME,
-        token=os.getenv("HF_TOKEN"),
-    )
+
+    try:
+        if CHECKPOINT:
+            path = Path(CHECKPOINT)
+            if path.exists():
+                return str(path)
+            return hf_hub_download(
+                repo_id=CHECKPOINT,
+                filename=CHECKPOINT_FILENAME,
+                token=token,
+            )
+
+        return hf_hub_download(
+            repo_id=CHECKPOINT_REPO,
+            filename=CHECKPOINT_FILENAME,
+            token=token,
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            "Hugging Face authentication/checkpoint access failed. "
+            f"Verify HF_TOKEN has read access to '{CHECKPOINT_REPO}' and "
+            f"'{TEXT_MODEL}' is approved for your account. "
+            f"Original error: {exc}"
+        ) from exc
 
 
 def load_model(device):
@@ -173,9 +190,9 @@ def predict(image: Image.Image, text: str, history):
             MODEL_DEVICE = device
         except Exception as exc:
             raise gr.Error(
-                "MedFusion-X could not load a trained checkpoint. "
-                "Configure HF_TOKEN and upload best.pt to "
-                f"{CHECKPOINT_REPO}, or set MEDFUSION_CHECKPOINT. "
+                "MedFusion-X model initialization failed. "
+                "Check the Space secret HF_TOKEN, private checkpoint access, "
+                "and gated MedGemma access. "
                 f"Technical detail: {exc}"
             ) from exc
 
