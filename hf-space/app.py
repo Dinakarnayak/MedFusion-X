@@ -154,7 +154,7 @@ def build_report(run_id, timestamp, device, prompt, ranked, uncertainty, disagre
     }
 
 
-@spaces.GPU(duration=180)
+@spaces.GPU(duration=60)
 def predict(image: Image.Image, text: str, history):
     global MODEL, MODEL_DEVICE
 
